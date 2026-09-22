@@ -1,0 +1,9 @@
+# Simulator and synthesis output. Keep source, testbenches, programs, and reports
+# used as milestone evidence under version control when they are intentional.
+build/
+dist/
+*.vcd
+*.fst
+*.log
+__pycache__/
+*.pyc
