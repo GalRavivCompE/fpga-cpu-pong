@@ -16,6 +16,7 @@ Status meanings: **open** = being explored; **provisional** = useful working cho
 | Software/hardware boundary | Provisional | CPU computes game state and rules; hardware handles physical I/O and optional video timing/rendering. |
 | First hardware priority | Accepted (2026-09-22) | Run a functioning CPU on an FPGA board first. Initial output may be LEDs or serial; video follows only if useful. User preference. |
 | Project documentation | Accepted (2026-09-22) | Maintain this repository as the GitHub project record, with reproducible milestone notes and explicit planned/working status. User preference. |
+| Primary project objective | Accepted (2026-09-22) | Learning and understanding take priority over finishing a polished demo. Use design exercises, predictions, review, and small tests; avoid unexplained end-to-end AI implementation. User preference. |
 
 ## Evidence and change rule
 

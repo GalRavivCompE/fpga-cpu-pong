@@ -2,6 +2,14 @@
 
 Build a CPU with a custom ISA on an FPGA and demonstrate it executing an interactive game program. The game rules and state updates must execute as CPU instructions. Supporting hardware may sample inputs and produce video or other output.
 
+## Learning comes first
+
+The main goal is to learn CPU design, digital verification, FPGA tools, and engineering tradeoffs. A finished Pong demo is valuable only if its design and behavior are understood.
+
+For each major step, start with a question or a small design exercise. I will explain the relevant ideas, compare options, and ask for your reasoning before settling important architecture choices. You should have room to sketch instructions, predict behavior, write or modify modules, and inspect waveforms yourself. I can provide examples, review designs and code, help debug, and fill in tedious support work, but I should not silently implement the whole CPU or present unexplained code as progress.
+
+Keep milestones small enough to test and understand. Record what you expected, what the simulation or board actually did, and what you learned. If a result is confusing, pause to explain it before adding more features.
+
 ## Current status
 
 **Planning only.** No ISA, RTL, assembler, game, or FPGA implementation exists yet. Width, board, HDL, tools, and display are open decisions.
@@ -48,7 +56,7 @@ The hardware must not decide collisions or scores for the game demo. A renderer 
 
 ## Documenting progress on GitHub
 
-This repository is the project record. For each milestone, update [progress.md](progress.md) with what ran, how to reproduce it, evidence (simulation output or board observation), and known limitations. Record architecture choices in [decisions.md](decisions.md). Keep example programs, testbenches, and build commands in the repository as they are developed. Label proposed features as planned and tested behavior as working.
+This repository is the project record. For each milestone, update [progress.md](progress.md) with what you expected, what ran, how to reproduce it, evidence (simulation output or board observation), what you learned, and known limitations. Record architecture choices in [decisions.md](decisions.md). Keep example programs, testbenches, and build commands in the repository as they are developed. Label proposed features as planned and tested behavior as working.
 
 The public project repository is [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRavivCompE/fpga-cpu-pong).
 

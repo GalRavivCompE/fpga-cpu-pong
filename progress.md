@@ -13,7 +13,9 @@ Copy this section when a milestone is reached:
 ### YYYY-MM-DD — milestone name
 
 - **Status:** Planned / simulated / working on board
+- **Question or prediction:** What did you expect, and why?
 - **What changed:**
 - **How to reproduce:** Exact commands, board settings, and input steps
 - **Evidence:** Test output, waveform, synthesis report, or observed output
+- **What I learned:** Explain the result in your own words
 - **Limitations and next step:**
