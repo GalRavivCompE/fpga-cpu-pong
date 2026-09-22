@@ -50,7 +50,7 @@ The hardware must not decide collisions or scores for the game demo. A renderer 
 
 This repository is the project record. For each milestone, update [progress.md](progress.md) with what ran, how to reproduce it, evidence (simulation output or board observation), and known limitations. Record architecture choices in [decisions.md](decisions.md). Keep example programs, testbenches, and build commands in the repository as they are developed. Label proposed features as planned and tested behavior as working.
 
-The local repository has no commit or GitHub remote yet. Publishing requires a GitHub repository and a remote URL; neither has been selected here.
+The public project repository is [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRavivCompE/fpga-cpu-pong).
 
 ## Open decisions
 

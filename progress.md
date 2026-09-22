@@ -4,6 +4,8 @@
 
 **Status:** Planning. Defined the goal, a CPU/software versus hardware boundary, a 16-bit versus 32-bit comparison, and a board-first milestone sequence. No RTL, programs, simulation tests, or board results exist yet.
 
+Created the public GitHub repository at [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRavivCompE/fpga-cpu-pong). The repository holds the project record; implementation remains planned.
+
 ## Milestone entry template
 
 Copy this section when a milestone is reached:
