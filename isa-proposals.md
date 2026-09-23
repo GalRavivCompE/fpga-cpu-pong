@@ -16,7 +16,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 4. **Basic arithmetic.** Proposal: `ADD Rd, Ra, Rb` and `SUB Rd, Ra, Rb`; each writes the low 32 bits. Signed values use two's complement. The two-operand spelling `ADD Rd, Rb` or `SUB Rd, Rb` is an assembler shorthand with `Ra=Rd`, not another hardware opcode. Alternative: separate two-operand opcodes, which would still occupy 32 bits each unless given another useful encoding advantage.
 
-5. **Constants.** Proposal: `SET_SMALL Rd, imm16` sign-extends a 16-bit value into all 32 bits. `SET_HIGH Rd, imm16` replaces bits 31:16 and preserves bits 15:0. Together they can construct any 32-bit pattern; common small values, including -1, take one instruction. Alternative: zero-extend small values, making some unsigned values simpler but small negative values need a second instruction. A stored constant table remains available in data memory.
+5. **Constants — provisionally adopted.** `SET_SMALL Rd, imm16` sign-extends a 16-bit value into all 32 bits. `SET_HIGH Rd, imm16` replaces bits 31:16 and preserves bits 15:0. Together they can construct any 32-bit pattern; common small values, including -1, take one instruction. Zero extension was considered, but it would make small negative values need a second instruction. A stored constant table remains available in data memory.
 
 6. **Arithmetic with a constant.** Proposal: `ADD_SMALL Rd, Ra, imm16` adds a signed 16-bit immediate modulo 2^32. A negative immediate also performs subtraction, so no separate `SUB_SMALL` is needed. Alternative: load each constant into a register and use `ADD`/`SUB`; simpler decoder, but loop counters and pointers consume extra instructions/registers. Compare sample-program length before accepting.
 
