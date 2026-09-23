@@ -24,7 +24,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 7. **Bitwise operations.** Proposal: `AND`, `OR`, and `XOR` each read two registers and write one; `NOT Rd, Ra` inverts all 32 bits. `NOT` has already been discussed as a direct hardware instruction. Alternative: implement only a functionally sufficient subset and synthesize other operations from several instructions; smaller opcode set, longer programs. `AND` is useful for masks in button input registers.
 
-8. **Shifts.** Proposal: add left logical, right logical, and right arithmetic shifts by a 5-bit immediate (0–31); reserve register-controlled shifts for a later version. These support bitfields and scaling by powers of two. Arithmetic right shift needs careful treatment when used in place of signed division, because negative values can round differently. Alternative: omit shifts initially and use loops or repeated arithmetic, which keeps the first ALU smaller but makes many general programs awkward.
+8. **Shifts — provisionally simplified.** Use `SHL1 Rd, Ra` and `SHR1 Rd, Ra`, each moving by one bit. Left shift fills with zero; right shift copies the old top bit, preserving the sign bit. Software repeats a shift for larger distances. There is no direct zero-filling right shift for now; one can be synthesized by masking the top bit after `SHR1`, or reconsidered after sample programs. This replaces the earlier proposal for three shift modes with variable or immediate distances.
 
 ## Memory and I/O
 

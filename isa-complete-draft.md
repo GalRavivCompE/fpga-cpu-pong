@@ -14,14 +14,14 @@ The goal is a small, general-purpose 32-bit CPU that is approachable to implemen
 
 ## Instruction set
 
-Notation: `Rd` receives a result, `Ra` and `Rb` are sources, and `[A]` means data memory at byte address `A`. `PC=P` refers to the address of the instruction currently executing. `x >>a k` is an arithmetic right shift; other shifts insert zero bits. A register shift count uses only the low five bits of `Rb`.
+Notation: `Rd` receives a result, `Ra` and `Rb` are sources, and `[A]` means data memory at byte address `A`. `PC=P` refers to the address of the instruction currently executing.
 
 | Group | Instructions | Meaning and reason to include |
 | --- | --- | --- |
 | Constants/copy | `SET_SMALL Rd, signed_imm16`; `SET_HIGH Rd, imm16`; `MOVE Rd, Ra` | Load a small signed value; replace bits 31:16 of `Rd` while keeping bits 15:0; copy a register. The first two build any 32-bit value. `MOVE` is provisionally chosen as a direct instruction because copying a register is distinct from loading data memory. `SET_SMALL` with `0xFFFF` produces `0xFFFFFFFF` (-1). |
 | Arithmetic | `ADD Rd, Ra, Rb`; `SUB Rd, Ra, Rb`; `MUL Rd, Ra, Rb`; `DIV Rd, Ra, Rb` | Add/subtract modulo `2^32`. Multiplication and division are provisionally included at the project's request. Their exact signedness and edge cases remain open. A constant must currently be loaded into a register before arithmetic; `ADD_SMALL` is deferred for later review. |
 | Bitwise | `AND Rd, Ra, Rb`; `OR Rd, Ra, Rb`; `XOR Rd, Ra, Rb`; `NOT Rd, Ra` | Provisionally chosen as ordinary bitwise logic gates: each bit position is processed independently. Useful for packed data, masks, and input bits. `NOT` flips all 32 bits, not a Boolean value. |
-| Shifts | `SHL Rd, Ra, Rb`; `SHR Rd, Ra, Rb`; `SAR Rd, Ra, Rb`; `SHL_SMALL Rd, Ra, amount5`; `SHR_SMALL Rd, Ra, amount5`; `SAR_SMALL Rd, Ra, amount5` | Shift left, shift right with zero fill, or shift right preserving the sign bit. Register and constant amounts make both dynamic bitfields and common fixed shifts practical. Amounts are 0–31. |
+| Shifts | `SHL1 Rd, Ra`; `SHR1 Rd, Ra` | Move bits by exactly one position. `SHL1` fills the new low bit with zero; `SHR1` copies the old top bit into the new top bit. Repeat in software for larger distances. A zero-filling right shift is not a direct instruction in this draft. |
 | Word memory | `LOAD Rd, [Ra]`; `STORE Rs, [Ra]`; `LOAD_OFF Rd, [Ra + signed_imm16]`; `STORE_OFF Rs, [Ra + signed_imm16]` | Move aligned 32-bit words between registers and data memory/I/O. The two address forms are deliberately distinct. Address addition wraps to 32 bits before the alignment/map check. |
 | Byte memory | `LOAD_BYTE Rd, [Ra]`; `LOAD_UBYTE Rd, [Ra]`; `STORE_BYTE Rs, [Ra]` | Load a signed byte, load an unsigned byte, or store the low byte of a register. This supports text and packed data. No alignment restriction. Proposed for the completed ISA; can follow the word-only board demo. |
 | Halfword memory | `LOAD_HALF Rd, [Ra]`; `LOAD_UHALF Rd, [Ra]`; `STORE_HALF Rs, [Ra]` | Signed/unsigned 16-bit loads and a low-16-bit store. Addresses must be even. Proposed for the completed ISA; can follow the word-only board demo. |
@@ -44,7 +44,7 @@ Notation: `Rd` receives a result, `Ra` and `Rb` are sources, and `[A]` means dat
 
 ## Does a 32-bit instruction fit?
 
-Yes in principle. A 6-bit opcode supports up to 64 operations. Three register identifiers consume 9 bits, and a 16-bit immediate/count consumes 16 bits, leaving one bit (`6+9+16+1=32`). The table has fewer than 64 operation names. Different instructions use different subsets of those fields, and unused fields can be required to equal zero. The **exact bit layout and opcode numbers remain unassigned** pending review. A uniform format is convenient but not required. An immediate shift uses five low immediate bits; the rest must be zero. Fixed 32-bit instructions keep counted skips simple even though they are not compact in program memory.
+Yes in principle. A 6-bit opcode supports up to 64 operations. Three register identifiers consume 9 bits, and a 16-bit immediate/count consumes 16 bits, leaving one bit (`6+9+16+1=32`). The table has fewer than 64 operation names. Different instructions use different subsets of those fields, and unused fields can be required to equal zero. The **exact bit layout and opcode numbers remain unassigned** pending review. A uniform format is convenient but not required. Fixed 32-bit instructions keep counted skips simple even though they are not compact in program memory.
 
 ## Example: sum a length-prefixed list
 
