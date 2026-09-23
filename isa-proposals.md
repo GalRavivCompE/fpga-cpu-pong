@@ -28,7 +28,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 ## Memory and I/O
 
-9. **Loads and stores.** Proposal: four distinct word-access operations: load/store at address in a register, and load/store at register plus signed 16-bit byte offset. Each transfers an aligned 32-bit word. A non-multiple-of-four address is an error. Alternative: only the offset form with offset zero standing for register-only; simpler opcode use, contrary to the previously expressed preference for distinct instructions.
+9. **Loads and stores — revised provisional choice.** Use `LOAD Rd, [Ra]` and `STORE Rs, [Ra]` for aligned 32-bit word transfers. `Ra` holds the exact byte address; a non-multiple-of-four address is an error. The earlier base-plus-offset operations are removed from the current draft. Software can calculate an offset address with arithmetic. Revisit a direct offset form only if example programs justify it.
 
 10. **Byte order and smaller accesses.** Proposal: define data memory as little-endian now, even though only word transfers are supported initially. Later add byte and halfword loads/stores, with separate sign-extended and zero-extended loads. Alternative: defer byte order until smaller accesses exist, risking a later compatibility break. RV32I has byte, halfword, and word operations in its base ISA.
 
