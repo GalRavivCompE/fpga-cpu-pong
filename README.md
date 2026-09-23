@@ -65,3 +65,5 @@ The public project repository is [GalRavivCompE/fpga-cpu-pong](https://github.co
 See [decisions.md](decisions.md) for the decision log and what evidence each choice needs.
 
 See [isa-gap-audit.md](isa-gap-audit.md) for a comparison of the working ISA ideas with RISC-V RV32I and the gaps to resolve before an ISA version is frozen.
+
+See [isa-proposals.md](isa-proposals.md) for numbered functionality proposals to review and revise; none of those proposals is adopted merely by appearing there.
