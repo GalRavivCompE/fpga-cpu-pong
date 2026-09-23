@@ -12,7 +12,7 @@ Keep milestones small enough to test and understand. Record what you expected, w
 
 ## Current status
 
-**Planning only.** No ISA, RTL, assembler, game, or FPGA implementation exists yet. Width, board, HDL, tools, and display are open decisions.
+**Planning only.** No ISA encoding, RTL, assembler, game, or FPGA implementation exists yet. A 32-bit datapath and fixed 32-bit instructions are provisional choices; board, HDL, tools, and display remain open.
 
 ## Priority and first achievable demo
 
@@ -43,7 +43,7 @@ The hardware must not decide collisions or scores for the game demo. A renderer 
 | Instruction encoding | A 16-bit fixed instruction can be tight; longer instructions are possible | A 32-bit fixed instruction has room for fields but uses more program memory |
 | Learning value | Forces clear tradeoffs and a compact ISA | Makes software and future extensions easier to express |
 
-**No width selected yet.** CPU word width and instruction width are separate choices. Compare both candidates with the same minimum program, assembler, simulation tests, and synthesis target once a board is shortlisted. Do not assume that a 16-bit CPU must use 16-bit instructions or that a 32-bit CPU must use 32-bit instructions.
+**32-bit is the provisional CPU word width.** CPU word width and instruction width are separate choices; the current draft also uses fixed 32-bit instructions. Compare the 32-bit candidate with a 16-bit alternative using sample programs and synthesis results before treating the choice as final.
 
 ## Proposed sequence
 
@@ -63,3 +63,5 @@ The public project repository is [GalRavivCompE/fpga-cpu-pong](https://github.co
 ## Open decisions
 
 See [decisions.md](decisions.md) for the decision log and what evidence each choice needs.
+
+See [isa-gap-audit.md](isa-gap-audit.md) for a comparison of the working ISA ideas with RISC-V RV32I and the gaps to resolve before an ISA version is frozen.
