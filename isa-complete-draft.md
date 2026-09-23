@@ -1,6 +1,6 @@
 # Complete candidate ISA, revision 0.1
 
-**Status: proposed design for review, not a finalized or working ISA.** Prepared 2026-09-22. Nothing here has been encoded, assembled, simulated, or run on an FPGA. Earlier choices remain **provisional** in [decisions.md](decisions.md); additional instructions below are candidates for review. Each may be accepted, changed, or deferred.
+**Status: proposed design for review, not a finalized or working ISA.** Prepared 2026-09-22 and revised during section review. Nothing here has been encoded, assembled, simulated, or run on an FPGA. Earlier choices remain **provisional** in [decisions.md](decisions.md); additional instructions below are candidates for review. Each may be accepted, changed, or deferred.
 
 The goal is a small, general-purpose 32-bit CPU that is approachable to implement on an FPGA and pleasant enough to program by hand. Instruction names here describe behavior; final distinctive names can be chosen after semantics are stable. Inspiration and comparison: [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html) and [Astro8](https://sam-astro.github.io/Astro8-Computer/docs/Architecture/Instruction%20Set.html). Similar basic arithmetic is useful; counted conditional blocks, `GHOST`, `REPEAT`, eight writable registers, and separate program/data spaces make this design meaningfully different.
 
@@ -19,7 +19,7 @@ Notation: `Rd` receives a result, `Ra` and `Rb` are sources, and `[A]` means dat
 | Group | Instructions | Meaning and reason to include |
 | --- | --- | --- |
 | Constants/copy | `SET_SMALL Rd, signed_imm16`; `SET_HIGH Rd, imm16`; `MOVE Rd, Ra` | Load a small signed value; replace bits 31:16 of `Rd` while keeping bits 15:0; copy a register. The first two build any 32-bit value. `MOVE` is provisionally chosen as a direct instruction because copying a register is distinct from loading data memory. `SET_SMALL` with `0xFFFF` produces `0xFFFFFFFF` (-1). |
-| Arithmetic | `ADD Rd, Ra, Rb`; `SUB Rd, Ra, Rb`; `ADD_SMALL Rd, Ra, signed_imm16` | Add/subtract modulo `2^32`. `ADD_SMALL` increments pointers and decrements counters without consuming a register for a constant. A negative immediate serves as small subtraction. |
+| Arithmetic | `ADD Rd, Ra, Rb`; `SUB Rd, Ra, Rb`; `MUL Rd, Ra, Rb`; `DIV Rd, Ra, Rb` | Add/subtract modulo `2^32`. Multiplication and division are provisionally included at the project's request. Their exact signedness and edge cases remain open. A constant must currently be loaded into a register before arithmetic; `ADD_SMALL` is deferred for later review. |
 | Bitwise | `AND Rd, Ra, Rb`; `OR Rd, Ra, Rb`; `XOR Rd, Ra, Rb`; `NOT Rd, Ra` | Manipulate packed data, masks, and input bits. `NOT` flips all 32 bits, not a Boolean value. |
 | Shifts | `SHL Rd, Ra, Rb`; `SHR Rd, Ra, Rb`; `SAR Rd, Ra, Rb`; `SHL_SMALL Rd, Ra, amount5`; `SHR_SMALL Rd, Ra, amount5`; `SAR_SMALL Rd, Ra, amount5` | Shift left, shift right with zero fill, or shift right preserving the sign bit. Register and constant amounts make both dynamic bitfields and common fixed shifts practical. Amounts are 0–31. |
 | Word memory | `LOAD Rd, [Ra]`; `STORE Rs, [Ra]`; `LOAD_OFF Rd, [Ra + signed_imm16]`; `STORE_OFF Rs, [Ra + signed_imm16]` | Move aligned 32-bit words between registers and data memory/I/O. The two address forms are deliberately distinct. Address addition wraps to 32 bits before the alignment/map check. |
@@ -40,7 +40,7 @@ Notation: `Rd` receives a result, `Ra` and `Rb` are sources, and `[A]` means dat
 - Reserve a high region of **data** addresses for memory-mapped peripheral registers. `LOAD` and `STORE` read buttons and control LEDs or later video hardware through that region. Exact addresses and peripheral behavior are board/platform decisions, not instruction opcodes. Physical buttons need synchronization/debouncing in supporting hardware. The game rules, positions, collision response, and score updates run as CPU software.
 - The initial board milestone can implement word loads/stores and word-sized I/O first. Byte/halfword operations are in the candidate *completed* ISA but are not a prerequisite for a running CPU. Their opcodes should be fixed before distributing binary programs; earlier binaries should be marked experimental.
 - An invalid opcode, illegal reserved bit, misaligned instruction target or word/halfword access, unmapped data access, or program address outside installed program memory stops execution with an error code distinguishable from `HALT`. An access has no partial side effect on error. The simulator should report the failing PC and address; the board may show a compact status on LEDs or serial output. Exact electrical status interface is implementation-specific.
-- Polling input is sufficient for the first interactive game. Interrupts, traps, privilege levels, memory fences, multiply, and divide are outside this proposed first ISA. Software routines can multiply/divide if needed; hardware can be added when a real program shows a benefit.
+- Polling input is sufficient for the first interactive game. Interrupts, traps, privilege levels, and memory fences are outside this proposed first ISA. `MUL` and `DIV` belong to the target ISA but can be implemented after the first board self-check if needed to keep the initial bring-up manageable.
 
 ## Does a 32-bit instruction fit?
 
@@ -48,21 +48,23 @@ Yes in principle. A 6-bit opcode supports up to 64 operations. Three register id
 
 ## Example: sum a length-prefixed list
 
-Data memory at address 256 contains a word holding the list length; elements follow at 260, 264, 268, and so on. This length prevents an element equal to a special sentinel from accidentally ending the list. The example leaves the sum in `R0`; it uses `R7=0` only for the equality check.
+Data memory at address 256 contains a word holding the list length; elements follow at 260, 264, 268, and so on. This length prevents an element equal to a special sentinel from accidentally ending the list. The example leaves the sum in `R0`; it reserves `R4=4` for stepping to the next word, `R5=1` for decrementing the count, and `R7=0` for the equality check.
 
 ```text
 SET_SMALL R0, 0           ; sum
 SET_SMALL R7, 0           ; constant zero
+SET_SMALL R4, 4           ; bytes per word
+SET_SMALL R5, 1           ; count decrement
 SET_SMALL R1, 256         ; pointer to length
 LOAD R2, [R1]            ; remaining element count
-ADD_SMALL R1, R1, 4       ; pointer to first element
+ADD R1, R1, R4            ; pointer to first element
 loop:
 IF_EQ R2, R7, 1           ; when count is zero, execute the next GHOST
 GHOST done                ; otherwise IF_EQ skips this instruction
 LOAD R3, [R1]
 ADD R0, R0, R3
-ADD_SMALL R1, R1, 4
-ADD_SMALL R2, R2, -1
+ADD R1, R1, R4
+SUB R2, R2, R5
 REPEAT loop               ; assembler computes backward count
 done:
 HALT

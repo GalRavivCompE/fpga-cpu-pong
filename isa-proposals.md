@@ -20,7 +20,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 5. **Constants — provisionally adopted.** `SET_SMALL Rd, imm16` sign-extends a 16-bit value into all 32 bits. `SET_HIGH Rd, imm16` replaces bits 31:16 and preserves bits 15:0. Together they can construct any 32-bit pattern; common small values, including -1, take one instruction. Zero extension was considered, but it would make small negative values need a second instruction. A stored constant table remains available in data memory.
 
-6. **Arithmetic with a constant.** Proposal: `ADD_SMALL Rd, Ra, imm16` adds a signed 16-bit immediate modulo 2^32. A negative immediate also performs subtraction, so no separate `SUB_SMALL` is needed. Alternative: load each constant into a register and use `ADD`/`SUB`; simpler decoder, but loop counters and pointers consume extra instructions/registers. Compare sample-program length before accepting.
+6. **Arithmetic with a constant — deferred.** `ADD_SMALL Rd, Ra, imm16` would add a signed 16-bit immediate modulo 2^32. A negative immediate would also perform subtraction. The current ISA draft omits it while the rest of the instructions are reviewed; programs load constants into registers and use `ADD`/`SUB`. Revisit after comparing sample programs.
 
 7. **Bitwise operations.** Proposal: `AND`, `OR`, and `XOR` each read two registers and write one; `NOT Rd, Ra` inverts all 32 bits. `NOT` has already been discussed as a direct hardware instruction. Alternative: implement only a functionally sufficient subset and synthesize other operations from several instructions; smaller opcode set, longer programs. `AND` is useful for masks in button input registers.
 
@@ -50,7 +50,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 17. **Unsigned comparison.** Proposal for the next version: add `IF_UGT` with the same counted-block semantics as `IF_GT`, interpreting registers as unsigned 32-bit values. Equality and inequality do not depend on signedness. Alternative: synthesize unsigned ordering in software, which is possible but cumbersome. Addresses and sizes may use the upper half of the 32-bit range.
 
-18. **Multiply and divide.** Proposal: defer dedicated hardware instructions; use software algorithms if a program needs them, and add hardware after measuring demand. Alternative: include multiply/divide in the first ALU, increasing implementation and verification work. RISC-V places integer multiply/divide in its optional M extension.
+18. **Multiply and divide — provisionally included.** The target ISA includes `MUL` and `DIV` register operations. Their signedness and edge cases need a later review. A multicycle hardware implementation is possible; the first board self-check need not execute them. RISC-V places integer multiply/divide in its optional M extension.
 
 19. **Interrupts and memory ordering.** Proposal: poll input registers in the first CPU; execute all loads/stores in program order with no cache or out-of-order behavior. Add interrupts, trap handlers, and memory fences only when a program or device requires them. Alternative: define them now for stronger general-purpose capability at substantial design cost. This still requires precise error behavior under item 16.
 
