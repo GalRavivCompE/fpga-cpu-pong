@@ -1,6 +1,10 @@
-# Astro8 functionality comparison
+# ISA comparisons
 
-**Status: review notes.** Compared on 2026-09-23 with the [Astro8 instruction set reference](https://sam-astro.github.io/Astro8-Computer/docs/Architecture/Instruction%20Set.html). The comparison led to `COUNT` and variable-distance shifts in our candidate ISA; other rows remain options, not additions. Astro8's names and instruction IDs describe *its* machine, not ours. Our [instruction reference](isa-reference.md) has no assigned opcode IDs or working implementation.
+**Status: design review, not implementation evidence.** This page compares the current [instruction reference](reference.md) with [Astro8](https://sam-astro.github.io/Astro8-Computer/docs/Architecture/Instruction%20Set.html) and [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html). The external names and opcode IDs describe those machines, not ours. Our candidate still has no assigned opcode IDs or working implementation.
+
+## Astro8
+
+The comparison led to `COUNT` and variable-distance shifts in our candidate ISA; the remaining options below have not been adopted.
 
 The question is whether Astro8 can do something useful that our current instructions cannot, or can do only awkwardly. Similar instruction names do not guarantee identical behavior: Astro8 uses registers A/B/C for several fixed-purpose operations, whereas our instructions usually name any of eight registers.
 
@@ -18,6 +22,18 @@ The question is whether Astro8 can do something useful that our current instruct
 | `NOP` | `GHOST 0` advances without changing registers or data memory. | **Already covered.** A separate opcode would duplicate this behavior. |
 
 Astro8's page also lists ordinary arithmetic and bitwise operations already present in our draft. Our candidate additionally has `XOR`, `MOD`, unsigned greater-than, a sign-preserving right shift, `CALL` with a link register, and explicit `HALT`/`FAIL` outcomes. Those differences reflect design choices; they do not by themselves make either ISA better for a particular program.
+
+## RISC-V RV32I
+
+RV32I is a useful comparison for general-purpose software, though compatibility is not a project goal. This table compares the [base integer ISA](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html); optional extensions are described separately in the [RISC-V ISA introduction](https://docs.riscv.org/reference/isa/v20240411/unpriv/intro.html).
+
+| Area | RV32I | Current candidate and tradeoff |
+| --- | --- | --- |
+| Registers | 32 integer registers, one fixed at zero | Eight writable A–H are the current candidate; 16 writable registers remain open. Fewer registers simplify encoding but may require more RAM traffic. Dedicated constant registers are set aside. |
+| Addressing | One byte-addressed ISA memory space; base-plus-offset load/store operations for several data widths | Separate logical program/data spaces, with register-addressed aligned 32-bit `READ`/`WRITE`. This simplifies the first memory interface but makes byte data and some addressing patterns awkward. |
+| Control flow | Conditional branches and jumps use relative targets; `JALR` can jump through a register | Counted `IF_*`, `GHOST`, `REPEAT`, `LEAP`, and `CALL` use different control-flow rules. Fixed 32-bit instruction size makes instruction counts predictable; assembler labels still need to resolve those counts. |
+| Arithmetic and bits | `ADD`/`SUB`, logical operations, and variable-distance shifts are in the base; multiply and divide belong to the optional M extension | The candidate includes those operations plus `MUL`, `DIV`, and `MOD` as target instructions. This increases the target implementation work, though the first board program need not execute all of them. |
+| Errors and completion | The base ISA defines instructions such as `ECALL` and `EBREAK` whose behavior depends on the execution environment | `HALT` and `FAIL` give simple board self-check outcomes; hardware faults are separate. They are project-specific rather than RISC-V-compatible. |
 
 ## Questions to test before adding an opcode
 

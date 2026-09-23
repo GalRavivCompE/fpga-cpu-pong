@@ -1,6 +1,6 @@
 # Instruction set reference (draft)
 
-**Status: designed, not implemented or verified.** The operations below are the current candidate v1 ISA. Mnemonics and behavior have been reviewed; **binary opcode IDs and field positions have not been assigned**. An entry here does not mean the instruction runs in simulation or on an FPGA. The longer [design draft](isa-complete-draft.md) has example programs and rationale; the [decision log](decisions.md) records open choices.
+**Status: designed, not implemented or verified.** The operations below are the current candidate v1 ISA. Mnemonics and behavior have been reviewed; **binary opcode IDs and field positions have not been assigned**. An entry here does not mean the instruction runs in simulation or on an FPGA. See the [example programs](examples.md), [decision log](../project/decisions.md), and [ISA comparisons](comparisons.md) for context.
 
 ## Machine and notation
 
@@ -211,4 +211,4 @@ Each `IF_*` instruction has syntax `IF_* src1, src2, N`. If its comparison is tr
 
 ## Example programs and related decisions
 
-The [design draft](isa-complete-draft.md#example-sum-a-length-prefixed-list) shows a list-summing loop and a [button-to-output program](isa-complete-draft.md#example-mirror-one-button-to-one-output). Both are **assembly sketches**, not assembled or tested programs. See the [Astro8 functionality comparison](astro8-comparison.md) for possible extensions and why none is automatically added to this candidate ISA.
+The [examples](examples.md) show a list-summing loop and a button-to-output program. Both are **assembly sketches**, not assembled or tested programs. See the [comparisons](comparisons.md) for design tradeoffs against Astro8 and RISC-V.
