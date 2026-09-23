@@ -4,7 +4,7 @@
 
 ## Machine and notation
 
-- Eight writable 32-bit registers are named `A` through `H`. `dst` is a register receiving a result; `src`, `src1`, and `src2` are source registers. All source values are read before a destination is written, so `ADD A, A, B` is valid.
+- The current candidate has eight writable 32-bit registers named `A` through `H`; 16 registers remain an open alternative. `dst` is a register receiving a result; `src`, `src1`, and `src2` are source registers. All source values are read before a destination is written, so `ADD A, A, B` is valid.
 - The program counter (`PC`) and memory addresses are numeric **byte addresses**. Each instruction is 32 bits, at an address divisible by four. Program and data memory are separate logical spaces. Normal execution advances the PC by four bytes.
 - `[B]` means the 32-bit data word at the numeric address **held in register B**. It does not mean the value of B itself. Word transfers require addresses divisible by four.
 - `N` is a fixed unsigned count of machine instructions encoded in an instruction, not a register or a count of assembly source lines. Labels may let a future assembler calculate `N`. The draft count range is 0–65535. `imm16` is a 16-bit value embedded in an instruction.
@@ -16,7 +16,7 @@
 | --- | --- | --- |
 | [SET_LOW](#set_low), [SET_HIGH](#set_high), [DUPE](#dupe) | [AND](#and), [OR](#or), [XOR](#xor), [NOT](#not) | [READ](#read), [WRITE](#write) |
 | [ADD](#add), [SUB](#sub), [MUL](#mul) | [LSHIFT](#lshift), [RSHIFT](#rshift), [RSHIFT_SIGN](#rshift_sign) | [IF_EQ](#if_eq), [IF_NE](#if_ne), [IF_GT](#if_gt), [IF_UGT](#if_ugt) |
-| [DIV](#div), [MOD](#mod), [ADD_CONST](#add_const) | | [GHOST](#ghost), [REPEAT](#repeat), [LEAP](#leap), [CALL](#call), [HALT](#halt), [FAIL](#fail) |
+| [DIV](#div), [MOD](#mod), [ADD_CONST](#add_const) | | [GHOST](#ghost), [REPEAT](#repeat), [LEAP](#leap), [CALL](#call), [COUNT](#count), [HALT](#halt), [FAIL](#fail) |
 
 All opcode IDs below are **TBD**. Assigning an ID is part of the next encoding design step.
 
@@ -105,20 +105,23 @@ All opcode IDs below are **TBD**. Assigning an ID is part of the next encoding d
 ### LSHIFT
 
 **Opcode ID:** TBD  
-**Syntax:** `LSHIFT dst, src`  
-**Effect:** Shift left by **one** bit, discard the old top bit, and fill the new low bit with zero. Repeat the instruction for a larger distance.
+**Syntax:** `LSHIFT dst, src1, src2`
+
+**Effect:** Shift the 32-bit value in `src1` left by the unsigned distance in `src2`. Discard bits shifted past the top; fill from the right with zeros. A distance of zero copies `src1`; a distance of 32 or more gives zero. For example, if B is 3 and C is 2, `LSHIFT A, B, C` gives A = 12.
 
 ### RSHIFT
 
 **Opcode ID:** TBD  
-**Syntax:** `RSHIFT dst, src`  
-**Effect:** Shift right by **one** bit, discard the old low bit, and fill the new top bit with zero. This treats the source as an unsigned bit pattern.
+**Syntax:** `RSHIFT dst, src1, src2`
+
+**Effect:** Shift the 32-bit value in `src1` right by the unsigned distance in `src2`. Discard bits shifted past the bottom; fill from the left with zeros. A distance of zero copies `src1`; a distance of 32 or more gives zero. This treats the source as an unsigned bit pattern.
 
 ### RSHIFT_SIGN
 
 **Opcode ID:** TBD  
-**Syntax:** `RSHIFT_SIGN dst, src`  
-**Effect:** Shift right by **one** bit and copy the old top bit into the new top bit. This preserves the sign of a two's-complement value.
+**Syntax:** `RSHIFT_SIGN dst, src1, src2`
+
+**Effect:** Shift the 32-bit value in `src1` right by the unsigned distance in `src2`, copying the old top bit into the newly opened positions. A distance of zero copies `src1`; a distance of 32 or more gives all zeros if the old top bit was zero, or all ones if it was one. This is arithmetic right shift of a two's-complement value.
 
 ## Memory
 
@@ -185,6 +188,14 @@ Each `IF_*` instruction has syntax `IF_* src1, src2, N`. If its comparison is tr
 **Opcode ID:** TBD  
 **Syntax:** `CALL target_reg, link_reg`  
 **Effect:** Read the old target value, store `old PC+4` in `link_reg`, then set `PC` to the target. Return with `LEAP link_reg`. A nested call must save its incoming link value, for example in data memory. The target must be valid and aligned.
+
+### COUNT
+
+**Opcode ID:** TBD
+
+**Syntax:** `COUNT dst`
+
+**Effect:** Copy the **current instruction's byte address** (the PC before its normal advance) into `dst`, then continue at the next instruction. For example, `COUNT A` executing at program byte address 40 makes A = 40, not 10 or 44. The name refers to the program counter; it is not an elapsed-instruction or clock-cycle counter.
 
 ### HALT
 

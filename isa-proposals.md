@@ -1,6 +1,6 @@
 # ISA functionality options and review notes
 
-For the current instruction index, syntax, and behavior, see the [instruction set reference](isa-reference.md). For an end-to-end design draft and example programs, see [Complete candidate ISA, revision 0.1](isa-complete-draft.md). This numbered file preserves the original alternatives and decision history.
+For the current instruction index, syntax, and behavior, see the [instruction set reference](isa-reference.md). For an end-to-end design draft and example programs, see [Complete candidate ISA, revision 0.2](isa-complete-draft.md). This numbered file preserves the original alternatives and decision history.
 
 **Status: option history, not the authoritative ISA specification.** Prepared 2026-09-22 from the [gap audit](isa-gap-audit.md) and updated during review. The [decision log](decisions.md) records current scope; the [complete candidate ISA](isa-complete-draft.md) lists the proposed v1 instructions. No ISA encoding, assembler, or RTL is implemented. Names remain provisional.
 
@@ -8,9 +8,9 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 ## Machine state and instruction format
 
-1. **Registers and reset.** Proposal: eight writable 32-bit registers `A`–`H`; a 32-bit program counter (PC); on reset, PC and all registers become zero. No register is hardwired to zero. Alternative: leave register contents unspecified after reset, requiring software to initialize each one. Zeroing eight registers costs little hardware and makes early debugging more predictable. RV32I instead has a hardwired zero register and more total registers.
+1. **Registers and reset.** Current candidate: eight writable 32-bit registers `A`–`H`; a 32-bit program counter (PC); on reset, PC and all registers become zero. No register is hardwired to zero. Sixteen writable registers are an open alternative pending sample programs and hardware constraints; reserved constant registers are set aside for now. Leaving register contents unspecified after reset was another option, but zeroing registers makes early debugging more predictable. RV32I instead has a hardwired zero register and more total registers.
 
-2. **Instruction word and fields.** Proposal: every instruction occupies one 32-bit word at a four-byte-aligned program address. Use a common format with a 6-bit opcode, up to three 3-bit register fields, and a 16-bit immediate/count field; unused bits must be zero. This is a feasibility sketch, **not an assigned encoding**. Alternative: several differently packed formats that allow larger immediates but complicate decoding. Exact bit positions and opcode values wait until the operations below are reviewed.
+2. **Instruction word and fields.** Proposal: every instruction occupies one 32-bit word at a four-byte-aligned program address. With eight registers, a feasibility sketch uses a 6-bit opcode, up to three 3-bit register fields, and a 16-bit immediate/count field; unused bits must be zero. This is **not an assigned encoding**. Sixteen registers would require 4-bit register identifiers; three-register operations and immediate operations could use different field layouts within the same 32-bit instruction width. Exact bit positions and opcode values remain open.
 
 3. **Instruction and data spaces.** Proposal: the PC fetches only from program memory; loads/stores access only data memory and mapped I/O. Both spaces use byte addresses. The first physical implementation can use a program ROM and data RAM. Alternative: one shared ISA address space, allowing programs to read code as data but needing more memory-system design. This choice is already provisional in the decision log.
 
@@ -24,7 +24,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 7. **Bitwise operations.** Proposal: `AND`, `OR`, and `XOR` each read two registers and write one; `NOT dst, src1` inverts all 32 bits. `NOT` has already been discussed as a direct hardware instruction. Alternative: implement only a functionally sufficient subset and synthesize other operations from several instructions; smaller opcode set, longer programs. `AND` is useful for masks in button input registers.
 
-8. **Shifts — revised provisional choice.** Use `LSHIFT dst, src1`, `RSHIFT_SIGN dst, src1`, and `RSHIFT dst, src1`, each moving by one bit. Left shift fills with zero. `RSHIFT_SIGN` copies the old top bit, preserving the sign bit; `RSHIFT` fills the new top bit with zero for unsigned bit patterns. Software repeats a shift for larger distances. This replaces the earlier proposal for shift amounts encoded in an instruction or another register. Alternate left-fill and rotate operations are excluded from v1.
+8. **Shifts — revised provisional choice.** Use `LSHIFT dst, src1, src2`, `RSHIFT dst, src1, src2`, and `RSHIFT_SIGN dst, src1, src2`. The second source register holds an unsigned shift distance. Left and ordinary right shift fill with zero; `RSHIFT_SIGN` copies the old top bit into open positions. A zero distance copies the value; distances of 32 or more produce zero or a full sign-bit pattern as appropriate. This replaces the earlier fixed one-bit form. The CPU may use a multicycle shifter or a faster barrel shifter; choose after hardware exploration. Alternate left-fill and rotate operations are excluded from v1.
 
 ## Memory and I/O
 
@@ -53,6 +53,8 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 18. **Multiply, divide, and remainder — provisionally chosen.** The target ISA includes `MUL`, `DIV`, and `MOD` register operations. `MUL` keeps the low 32 bits. `DIV` uses signed two's-complement operands and truncates toward zero. `MOD` returns the corresponding signed remainder, so `-17 MOD 5 = -2`. A zero divisor causes a hardware fault for `DIV` or `MOD`; `-2147483648 / -1` wraps to `0x80000000` and has remainder zero. A multicycle implementation may let `DIV` and `MOD` share hardware; the first board self-check need not execute them. RISC-V places integer multiply/divide in its optional M extension.
 
 19. **Interrupts and memory ordering.** Proposal: poll input registers in the first CPU; execute all loads/stores in program order with no cache or out-of-order behavior. Add interrupts, trap handlers, and memory fences only when a program or device requires them. Alternative: define them now for stronger general-purpose capability at substantial design cost. This still requires precise error behavior under item 16.
+
+20. **Program-counter read — selected for candidate ISA.** `COUNT dst` writes the current instruction's PC byte address to `dst` and then advances normally. `LINE_COUNT` was considered but could be confused with source-code lines. Astro8 calls the comparable operation `PCR`. A fixed program can construct absolute addresses instead, but `COUNT` makes location-relative code easier to write. Exact encoding remains open.
 
 ## First review pass
 

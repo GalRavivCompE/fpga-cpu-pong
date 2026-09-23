@@ -14,6 +14,10 @@ The public repository at [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRav
 
 **Status:** Documentation only. Added an indexed, instruction-by-instruction [ISA reference](isa-reference.md) with syntax and behavior, modeled on the organization of Astro8's reference. [Compared Astro8 features](astro8-comparison.md) and recorded candidate extensions without adding them to v1. Opcode IDs and bit fields are still unassigned; no instruction has been simulated or run on an FPGA.
 
+## 2026-09-23 — PC read and variable-distance shifts
+
+**Status:** Design only. Added `COUNT dst` to read the current PC byte address. Revised `LSHIFT`, `RSHIFT`, and `RSHIFT_SIGN` to use `dst, src1, src2`, with `src2` holding an unsigned shift distance. Defined zero-distance and 32-or-greater behavior. Eight versus 16 writable registers remains open pending program examples and hardware constraints; dedicated constant registers are set aside. No opcode encoding or hardware result exists yet.
+
 ## Milestone entry template
 
 Template for future milestone entries:
