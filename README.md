@@ -1,5 +1,7 @@
 # FPGA CPU Pong
 
+The current complete **proposed** ISA is in [isa-complete-draft.md](isa-complete-draft.md). It is a review draft, not an implemented CPU.
+
 Build a CPU with a custom ISA on an FPGA and demonstrate it executing an interactive game program. The game rules and state updates must execute as CPU instructions. Supporting hardware may sample inputs and produce video or other output.
 
 ## Learning comes first

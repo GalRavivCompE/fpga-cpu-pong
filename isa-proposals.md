@@ -1,5 +1,7 @@
 # ISA functionality proposals for review
 
+For a single end-to-end candidate rather than reviewing items one at a time, see [Complete candidate ISA, revision 0.1](isa-complete-draft.md). This numbered file preserves the original alternatives and decision history.
+
 **Status: proposals, not decisions.** Prepared 2026-09-22 from the [gap audit](isa-gap-audit.md) and the current [decision log](decisions.md). No ISA encoding, assembler, or RTL is implemented. The names below describe behavior; final mnemonics can be chosen later. Review items by number and mark each **accept**, **change**, **defer**, or **question**. They do not have to be reviewed all at once.
 
 The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html). Its optional extensions are described in the [ISA introduction](https://docs.riscv.org/reference/isa/v20240411/unpriv/intro.html). Our aim is a coherent custom CPU, not RISC-V compatibility.
