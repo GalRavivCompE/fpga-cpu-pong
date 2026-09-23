@@ -50,7 +50,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 17. **Unsigned comparison — provisionally chosen.** `IF_UGT` belongs in the current ISA draft with the same counted-block semantics as signed `IF_GT`, but interprets both registers as unsigned 32-bit values. This is useful when comparing bit patterns, addresses, or sizes in the upper half of the range.
 
-18. **Multiply and divide — provisionally included.** The target ISA includes `MUL` and `DIV` register operations. Their signedness and edge cases need a later review. A multicycle hardware implementation is possible; the first board self-check need not execute them. RISC-V places integer multiply/divide in its optional M extension.
+18. **Multiply and divide — provisionally included.** The target ISA includes `MUL` and `DIV` register operations. `DIV` uses signed two's-complement operands. Multiplication result width, division rounding, overflow, and division by zero need further review. A multicycle hardware implementation is possible; the first board self-check need not execute them. RISC-V places integer multiply/divide in its optional M extension.
 
 19. **Interrupts and memory ordering.** Proposal: poll input registers in the first CPU; execute all loads/stores in program order with no cache or out-of-order behavior. Add interrupts, trap handlers, and memory fences only when a program or device requires them. Alternative: define them now for stronger general-purpose capability at substantial design cost. This still requires precise error behavior under item 16.
 
