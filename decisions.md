@@ -20,6 +20,7 @@ Status meanings: **open** = being explored; **provisional** = useful working cho
 | ISA comparison method | Accepted (2026-09-22) | Compare major design choices with established ISAs such as RISC-V, explaining similarities and differences before deciding what to adopt. User preference. |
 | ISA design discussion method | Accepted (2026-09-22) | For each design problem, present viable options and tradeoffs before asking the user to choose. Treat existing ISAs as references; document why a feature is adopted, adapted, or intentionally different so the custom ISA has its own coherent design. User preference. |
 | Addressing and first load/store size | Provisional (2026-09-22) | Memory addresses identify bytes. The first CPU supports aligned 32-bit loads and stores; byte and halfword operations can be considered later. This keeps the initial datapath and memory interface simple while allowing finer-grained accesses in a future extension. Similar to RISC-V's byte-addressed space and word operations. |
+| Conditional and skip operations | Provisional (2026-09-22) | `IF_EQ Ra, Rb, N` compares two registers; if equal, the following N machine instructions execute normally, and if not equal they are skipped. `GHOST N` unconditionally skips the following N machine instructions. The operations are separate; an `IF_EQ` block can control a `GHOST`. Compared with RISC-V's BEQ, which branches to a PC-relative target when equal, this design uses counted sequential skipping and needs instruction-count semantics. |
 
 ## Evidence and change rule
 
