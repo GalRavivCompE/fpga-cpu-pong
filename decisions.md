@@ -18,6 +18,7 @@ Status meanings: **open** = being explored; **provisional** = useful working cho
 | Project documentation | Accepted (2026-09-22) | Maintain this repository as the GitHub project record, with reproducible milestone notes and explicit planned/working status. User preference. |
 | Primary project objective | Accepted (2026-09-22) | Learning and understanding take priority over finishing a polished demo. Use design exercises, predictions, review, and small tests; avoid unexplained end-to-end AI implementation. User preference. |
 | ISA comparison method | Accepted (2026-09-22) | Compare major design choices with established ISAs such as RISC-V, explaining similarities and differences before deciding what to adopt. User preference. |
+| ISA design discussion method | Accepted (2026-09-22) | For each design problem, present viable options and tradeoffs before asking the user to choose. Treat existing ISAs as references; document why a feature is adopted, adapted, or intentionally different so the custom ISA has its own coherent design. User preference. |
 | Addressing and first load/store size | Provisional (2026-09-22) | Memory addresses identify bytes. The first CPU supports aligned 32-bit loads and stores; byte and halfword operations can be considered later. This keeps the initial datapath and memory interface simple while allowing finer-grained accesses in a future extension. Similar to RISC-V's byte-addressed space and word operations. |
 
 ## Evidence and change rule
