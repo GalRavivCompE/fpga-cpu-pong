@@ -18,7 +18,7 @@ Notation: `Rd` receives a result, `Ra` and `Rb` are sources, and `[A]` means dat
 
 | Group | Instructions | Meaning and reason to include |
 | --- | --- | --- |
-| Constants/copy | `SET_SMALL Rd, signed_imm16`; `SET_HIGH Rd, imm16`; `MOVE Rd, Ra` | Load a small signed value; replace bits 31:16 of `Rd` while keeping bits 15:0; copy a register. The first two build any 32-bit value, and `MOVE` makes register use easier to read. `SET_SMALL` with `0xFFFF` produces `0xFFFFFFFF` (-1). |
+| Constants/copy | `SET_SMALL Rd, signed_imm16`; `SET_HIGH Rd, imm16`; `MOVE Rd, Ra` | Load a small signed value; replace bits 31:16 of `Rd` while keeping bits 15:0; copy a register. The first two build any 32-bit value. `MOVE` is provisionally chosen as a direct instruction because copying a register is distinct from loading data memory. `SET_SMALL` with `0xFFFF` produces `0xFFFFFFFF` (-1). |
 | Arithmetic | `ADD Rd, Ra, Rb`; `SUB Rd, Ra, Rb`; `ADD_SMALL Rd, Ra, signed_imm16` | Add/subtract modulo `2^32`. `ADD_SMALL` increments pointers and decrements counters without consuming a register for a constant. A negative immediate serves as small subtraction. |
 | Bitwise | `AND Rd, Ra, Rb`; `OR Rd, Ra, Rb`; `XOR Rd, Ra, Rb`; `NOT Rd, Ra` | Manipulate packed data, masks, and input bits. `NOT` flips all 32 bits, not a Boolean value. |
 | Shifts | `SHL Rd, Ra, Rb`; `SHR Rd, Ra, Rb`; `SAR Rd, Ra, Rb`; `SHL_SMALL Rd, Ra, amount5`; `SHR_SMALL Rd, Ra, amount5`; `SAR_SMALL Rd, Ra, amount5` | Shift left, shift right with zero fill, or shift right preserving the sign bit. Register and constant amounts make both dynamic bitfields and common fixed shifts practical. Amounts are 0–31. |
