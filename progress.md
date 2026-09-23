@@ -10,6 +10,10 @@ The public repository at [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRav
 
 **Status:** Design only. Reviewed the v1 instruction set and behavior, including explicit counted conditions and fixed-count `GHOST`/`REPEAT`. The next design pass is instruction naming, followed by binary encoding. No instruction has been assembled, simulated, or implemented in RTL; no board has been chosen.
 
+## 2026-09-23 — instruction reference and Astro8 comparison
+
+**Status:** Documentation only. Added an indexed, instruction-by-instruction [ISA reference](isa-reference.md) with syntax and behavior, modeled on the organization of Astro8's reference. [Compared Astro8 features](astro8-comparison.md) and recorded candidate extensions without adding them to v1. Opcode IDs and bit fields are still unassigned; no instruction has been simulated or run on an FPGA.
+
 ## Milestone entry template
 
 Template for future milestone entries:

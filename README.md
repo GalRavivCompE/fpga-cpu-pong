@@ -2,7 +2,7 @@
 
 I'm designing a CPU with my own instruction set, building it on an FPGA, and using it to run an interactive game. This repository documents the design, experiments, mistakes, and working results as the project develops.
 
-The current [ISA draft](isa-complete-draft.md) is a proposal for review. No CPU has been implemented yet.
+The current [instruction set reference](isa-reference.md) documents each proposed instruction. The longer [ISA design draft](isa-complete-draft.md) explains example programs and rationale. No CPU has been implemented yet.
 
 ## Learning comes first
 
@@ -14,7 +14,7 @@ I will keep milestones small enough to test and understand. Each milestone shoul
 
 ## Current status
 
-**Functional ISA draft selected; implementation not started.** The v1 instruction set and intended behavior have been reviewed. Instruction names and binary encoding remain to be chosen. No RTL, assembler, game, simulation result, or FPGA implementation exists yet. A 32-bit datapath and fixed 32-bit instructions are provisional choices; board, HDL, tools, and display remain open.
+**Functional ISA draft selected; implementation not started.** The v1 instruction set, intended behavior, and current instruction names have been reviewed. Binary opcode IDs and field positions remain to be chosen. No RTL, assembler, game, simulation result, or FPGA implementation exists yet. A 32-bit datapath and fixed 32-bit instructions are provisional choices; board, HDL, tools, and display remain open.
 
 ## Priority and first achievable demo
 
@@ -49,7 +49,7 @@ The hardware must not decide collisions or scores for the game demo. A renderer 
 
 ## Proposed sequence
 
-1. Review the [ISA proposal](isa-complete-draft.md) as a whole, then decide which instructions the first board program needs.
+1. Review the [instruction reference](isa-reference.md) and decide which instructions the first board program needs.
 2. Choose a board, HDL, simulator, and toolchain based on availability and a simple input/output path. Revisit the provisional 32-bit width if the board or synthesis results give a reason to.
 3. Define binary encodings and build a small assembler or encoder plus a reference simulator.
 4. Implement and simulate the CPU with small arithmetic, memory, and control-flow programs.
@@ -69,3 +69,5 @@ See [decisions.md](decisions.md) for the decision log and what evidence each cho
 See [isa-gap-audit.md](isa-gap-audit.md) for a comparison of the working ISA ideas with RISC-V RV32I and the gaps to resolve before an ISA version is frozen.
 
 See [isa-proposals.md](isa-proposals.md) for numbered functionality proposals to review and revise; none of those proposals is adopted merely by appearing there.
+
+See [astro8-comparison.md](astro8-comparison.md) for a feature-by-feature comparison with Astro8 and possible future additions.

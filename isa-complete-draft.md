@@ -1,5 +1,7 @@
 # Complete candidate ISA, revision 0.1
 
+For an indexed, instruction-by-instruction view with syntax and behavior, see the [instruction set reference](isa-reference.md). This document retains the design rationale and example programs.
+
 **Status: proposed version 1 design for review, not a finalized or working ISA.** Prepared 2026-09-22 and revised during section review. Nothing here has been encoded, assembled, simulated, or run on an FPGA. The [decision log](decisions.md) distinguishes provisional instructions from features deliberately excluded from version 1. A later version can change the scope explicitly.
 
 The goal is a small, general-purpose 32-bit CPU that is approachable to implement on an FPGA and pleasant enough to program by hand. Instruction names here describe behavior; final distinctive names can be chosen after semantics are stable. Inspiration and comparison: [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html) and [Astro8](https://sam-astro.github.io/Astro8-Computer/docs/Architecture/Instruction%20Set.html). Similar basic arithmetic is useful; counted conditional blocks, `GHOST`, `REPEAT`, eight writable registers, and separate program/data spaces make this design meaningfully different.

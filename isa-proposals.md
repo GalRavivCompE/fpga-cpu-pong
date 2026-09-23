@@ -1,6 +1,6 @@
 # ISA functionality options and review notes
 
-For a single end-to-end candidate rather than reviewing items one at a time, see [Complete candidate ISA, revision 0.1](isa-complete-draft.md). This numbered file preserves the original alternatives and decision history.
+For the current instruction index, syntax, and behavior, see the [instruction set reference](isa-reference.md). For an end-to-end design draft and example programs, see [Complete candidate ISA, revision 0.1](isa-complete-draft.md). This numbered file preserves the original alternatives and decision history.
 
 **Status: option history, not the authoritative ISA specification.** Prepared 2026-09-22 from the [gap audit](isa-gap-audit.md) and updated during review. The [decision log](decisions.md) records current scope; the [complete candidate ISA](isa-complete-draft.md) lists the proposed v1 instructions. No ISA encoding, assembler, or RTL is implemented. Names remain provisional.
 
