@@ -1,6 +1,6 @@
 # Complete candidate ISA, revision 0.1
 
-**Status: proposed design for review, not a finalized or working ISA.** Prepared 2026-09-22 and revised during section review. Nothing here has been encoded, assembled, simulated, or run on an FPGA. Earlier choices remain **provisional** in [decisions.md](decisions.md); additional instructions below are candidates for review. Each may be accepted, changed, or deferred.
+**Status: proposed version 1 design for review, not a finalized or working ISA.** Prepared 2026-09-22 and revised during section review. Nothing here has been encoded, assembled, simulated, or run on an FPGA. The [decision log](decisions.md) distinguishes provisional instructions from features deliberately excluded from version 1. A later version can change the scope explicitly.
 
 The goal is a small, general-purpose 32-bit CPU that is approachable to implement on an FPGA and pleasant enough to program by hand. Instruction names here describe behavior; final distinctive names can be chosen after semantics are stable. Inspiration and comparison: [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html) and [Astro8](https://sam-astro.github.io/Astro8-Computer/docs/Architecture/Instruction%20Set.html). Similar basic arithmetic is useful; counted conditional blocks, `GHOST`, `REPEAT`, eight writable registers, and separate program/data spaces make this design meaningfully different.
 
@@ -8,7 +8,7 @@ The goal is a small, general-purpose 32-bit CPU that is approachable to implemen
 
 - Eight writable 32-bit registers named `A`–`H`; no hardwired zero register. These letters select registers; they are not memory addresses. Reset clears them and sets the 32-bit program counter (PC) to byte address 0. Any register can hold a number, address, or bit pattern; there are no type tags.
 - Every instruction is one 32-bit word. Program addresses are byte addresses and must be multiples of four. Normal execution advances `PC` by 4. Program fetch and data access have separate logical address spaces; a data load cannot read an instruction word.
-- Data memory is byte addressed. A 32-bit word at numeric address `addr` occupies bytes `addr` through `addr+3`; the next aligned word begins at `addr+4`. Byte order within a word is deferred until smaller transfers are designed.
+- Data memory is byte addressed. A 32-bit word at numeric address `addr` occupies bytes `addr` through `addr+3`; the next aligned word begins at `addr+4`. Byte order within a word is not observable through v1's word-only transfers and is left for a future extension to define.
 - `ADD`, `SUB`, `MUL`, and `ADD_CONST` keep the low 32 bits (modulo `2^32`). Signed comparisons interpret bit patterns as two's-complement values. No condition flags are stored.
 - Instruction counts (`N`) are unsigned 16-bit values, 0–65535, unless stated otherwise. `imm16` is a 16-bit bit pattern; operations called *signed* sign-extend it to 32 bits. The assembler must reject operands outside the stated range instead of silently truncating them.
 
@@ -36,8 +36,8 @@ Notation: `dst`, `src1`, `src2`, `src`, `target_reg`, and `link_reg` are **place
 ## Memory, I/O, and error behavior
 
 - Reserve a high region of **data** addresses for memory-mapped peripheral registers. `LOAD` and `STORE` read buttons and control LEDs or later video hardware through that region. Exact addresses and peripheral behavior are board/platform decisions, not instruction opcodes. Physical buttons need synchronization/debouncing in supporting hardware. The game rules, positions, collision response, and score updates run as CPU software.
-- The current ISA draft has word loads/stores and word-sized I/O only. Byte/halfword operations are deferred extensions. Their behavior and opcodes can be designed when a program shows a need for them.
-- An invalid opcode, illegal reserved bit, misaligned instruction target or word access, unmapped data access, program address outside installed program memory, or a zero divisor in `DIV`/`MOD` stops execution with a hardware fault code distinguishable from both `HALT` and `ERR_HALT`. An operation has no partial side effect on error. The simulator should report the failing PC and relevant address or divisor; the board may show a compact status on LEDs or serial output. Exact electrical status interface is implementation-specific. A continuing `ERR_WARNING` operation is deferred.
+- Version 1 has word loads/stores and word-sized I/O only. Byte and halfword transfers, base-plus-offset memory instructions, alternate left shifts, rotates, and continuing warnings are **excluded from v1**. Adding one requires an explicit future ISA revision.
+- An invalid opcode, illegal reserved bit, misaligned instruction target or word access, unmapped data access, program address outside installed program memory, or a zero divisor in `DIV`/`MOD` stops execution with a hardware fault code distinguishable from both `HALT` and `ERR_HALT`. An operation has no partial side effect on error. The simulator should report the failing PC and relevant address or divisor; the board may show a compact status on LEDs or serial output. Exact electrical status interface is implementation-specific.
 - Polling input is sufficient for the first interactive game. Interrupts, traps, privilege levels, and memory fences are outside this proposed first ISA. `MUL` and `DIV` belong to the target ISA but can be implemented after the first board self-check if needed to keep the initial bring-up manageable.
 
 ## Does a 32-bit instruction fit?
@@ -67,6 +67,25 @@ HALT
 ```
 
 For a Pong-like program, the same pattern polls input with `LOAD`, updates position/velocity with arithmetic and conditionals, writes state to mapped output registers with `STORE`, and uses `REPEAT` for the game loop. Dedicated hardware can generate video timing and draw from those state registers without executing game rules.
+
+## Example: mirror one button to one output
+
+The addresses below are **illustrative**, not a selected board's memory map. Suppose hardware exposes button bits at data address `0xFFFF0000` and output bits at `0xFFFF0004`. `SET_CONST` and `SET_HIGH` build those 32-bit numbers in registers B and C. Bit 0 is isolated with `AND`, then written to the output. `REPEAT` polls continuously; this program does not reach `HALT` unless reset or a hardware fault stops it.
+
+```text
+SET_CONST B, 0
+SET_HIGH B, 0xFFFF       ; B = numeric input address 0xFFFF0000
+SET_CONST C, 4
+SET_HIGH C, 0xFFFF       ; C = numeric output address 0xFFFF0004
+SET_CONST D, 1           ; mask for button bit 0
+loop:
+LOAD A, [B]              ; hardware supplies current button bits
+AND A, A, D              ; keep only bit 0
+STORE A, [C]             ; hardware receives output bit 0
+REPEAT loop
+```
+
+This exercises input, output, masking, and a continuous software loop with the current ISA. It is an assembly sketch, not a simulated or board-tested program. Physical input synchronization and output electrical signals belong to supporting hardware; game rules remain CPU software.
 
 ## Review map
 

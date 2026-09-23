@@ -1,8 +1,8 @@
-# ISA functionality proposals for review
+# ISA functionality options and review notes
 
 For a single end-to-end candidate rather than reviewing items one at a time, see [Complete candidate ISA, revision 0.1](isa-complete-draft.md). This numbered file preserves the original alternatives and decision history.
 
-**Status: proposals, not decisions.** Prepared 2026-09-22 from the [gap audit](isa-gap-audit.md) and the current [decision log](decisions.md). No ISA encoding, assembler, or RTL is implemented. The names below describe behavior; final mnemonics can be chosen later. Items can be marked **accept**, **change**, **defer**, or **question** during review.
+**Status: option history, not the authoritative ISA specification.** Prepared 2026-09-22 from the [gap audit](isa-gap-audit.md) and updated during review. The [decision log](decisions.md) records current scope; the [complete candidate ISA](isa-complete-draft.md) lists the proposed v1 instructions. No ISA encoding, assembler, or RTL is implemented. Names remain provisional.
 
 The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html). Its optional extensions are described in the [ISA introduction](https://docs.riscv.org/reference/isa/v20240411/unpriv/intro.html). The aim is a coherent custom CPU, without RISC-V compatibility as a requirement.
 
@@ -24,13 +24,13 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 7. **Bitwise operations.** Proposal: `AND`, `OR`, and `XOR` each read two registers and write one; `NOT dst, src1` inverts all 32 bits. `NOT` has already been discussed as a direct hardware instruction. Alternative: implement only a functionally sufficient subset and synthesize other operations from several instructions; smaller opcode set, longer programs. `AND` is useful for masks in button input registers.
 
-8. **Shifts — revised provisional choice.** Use `SHL1 dst, src1`, `SHR1 dst, src1`, and `SHR_ZERO1 dst, src1`, each moving by one bit. Left shift fills with zero. `SHR1` copies the old top bit, preserving the sign bit; `SHR_ZERO1` fills the new top bit with zero for unsigned bit patterns. Software repeats a shift for larger distances. This replaces the earlier proposal for shift amounts encoded in an instruction or another register. Alternate left-fill and rotate operations are deferred.
+8. **Shifts — revised provisional choice.** Use `SHL1 dst, src1`, `SHR1 dst, src1`, and `SHR_ZERO1 dst, src1`, each moving by one bit. Left shift fills with zero. `SHR1` copies the old top bit, preserving the sign bit; `SHR_ZERO1` fills the new top bit with zero for unsigned bit patterns. Software repeats a shift for larger distances. This replaces the earlier proposal for shift amounts encoded in an instruction or another register. Alternate left-fill and rotate operations are excluded from v1.
 
 ## Memory and I/O
 
-9. **Loads and stores — revised provisional choice.** Use `LOAD dst, [src1]` and `STORE src, [src1]` for aligned 32-bit word transfers. `src1` holds the exact byte address; a non-multiple-of-four address is an error. The earlier base-plus-offset operations are removed from the current draft. Software can calculate an offset address with arithmetic. Revisit a direct offset form only if example programs justify it.
+9. **Loads and stores — accepted v1 scope.** Use `LOAD dst, [src1]` and `STORE src, [src1]` for aligned 32-bit word transfers. `src1` holds the exact byte address; a non-multiple-of-four address is an error. Base-plus-offset operations are excluded from v1. Software calculates an offset address with arithmetic.
 
-10. **Byte order and smaller accesses — deferred.** The current draft supports only aligned 32-bit word loads/stores. Byte and halfword transfers, including signed versus unsigned loads, can be revisited when needed by a program. Byte order is also deferred; it must be settled before smaller transfers are added or binary data formats are standardized. RV32I includes byte, halfword, and word operations in its base ISA.
+10. **Byte order and smaller accesses — excluded from v1.** Version 1 supports only aligned 32-bit word loads/stores. Byte and halfword transfers, including signed versus unsigned loads, are outside its opcode set. Byte order must be settled in an explicit future version before smaller transfers or binary data formats are standardized. RV32I includes byte, halfword, and word operations in its base ISA.
 
 11. **I/O map.** Proposal: reserve a high region of the data address space for 32-bit peripheral registers; ordinary load/store operations read button state and write output state. Exact addresses depend on the board. Alternative: special I/O instructions or separate I/O address space, adding ISA and bus complexity.
 
@@ -46,7 +46,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 ## Completion, errors, and later extensions
 
-16. **Finish and errors — provisionally chosen.** `HALT` stops successfully; `ERR_HALT` lets software report a failed self-check and stop. Invalid opcode, bad alignment, unmapped data access, and out-of-range PC stop automatically with a distinct hardware fault cause. A dedicated `NOP` is removed because `GHOST 0` already advances PC without changing state. A continuing `ERR_WARNING` is deferred until reporting and clearing rules have a concrete use. RV32I instead has `ECALL`/`EBREAK` and a broader execution environment.
+16. **Finish and errors — provisionally chosen.** `HALT` stops successfully; `ERR_HALT` lets software report a failed self-check and stop. Invalid opcode, bad alignment, unmapped data access, and out-of-range PC stop automatically with a distinct hardware fault cause. A dedicated `NOP` is removed because `GHOST 0` already advances PC without changing state. A continuing `ERR_WARNING` is excluded from v1. RV32I instead has `ECALL`/`EBREAK` and a broader execution environment.
 
 17. **Unsigned comparison — provisionally chosen.** `IF_UGT` belongs in the current ISA draft with the same counted-block semantics as signed `IF_GT`, but interprets both registers as unsigned 32-bit values. This is useful when comparing bit patterns, addresses, or sizes in the upper half of the range.
 
@@ -56,4 +56,4 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 ## First review pass
 
-This was the initial review order, before the [complete candidate ISA](isa-complete-draft.md) and its sample program were drafted: **5 (constants), 6 (arithmetic immediate), 7 (bitwise), 12 (conditions), 13 (PC/count semantics), and 16 (finish/errors)**. Item 15 was provisionally selected; it still needs encoding and an implementation. Other items remain proposals until reviewed and recorded in the decision log.
+This was the initial review order, before the [complete candidate ISA](isa-complete-draft.md) and its example programs were drafted: **5 (constants), 6 (arithmetic immediate), 7 (bitwise), 12 (conditions), 13 (PC/count semantics), and 16 (finish/errors)**. The current status of each choice is in the [decision log](decisions.md). No choice is marked *working* without an implementation test.
