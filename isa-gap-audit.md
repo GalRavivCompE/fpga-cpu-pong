@@ -15,7 +15,7 @@ Primary reference: [RISC-V RV32I specification](https://docs.riscv.org/reference
 | Bitwise operations | Direct bitwise `NOT`; `AND`/`OR` suggested | `AND`/`OR`/`XOR`; NOT is an assembler alias for `XORI -1` | NOT provisional; AND/OR not yet precise |
 | Constants | Small immediate plus an upper-half operation | Small immediates plus `LUI` | Structure provisional; exact sign/zero extension open |
 | Memory | Byte addresses; aligned 32-bit loads/stores; separate register and base-plus-offset forms | Byte-addressed loads/stores with offsets; word, halfword, and byte sizes | Provisional; offset encoding, misalignment, and data map open |
-| Control flow | `IF_EQ Ra,Rb,N` skips N instructions on false; `GHOST N` skips forward; `REPEAT N` jumps backward | Conditional branches and PC-relative/register-target jumps | Provisional; ranges, edge cases, and other conditions open |
+| Control flow | `IF_EQ src1,src2,N` skips N instructions on false; `GHOST N` skips forward; `REPEAT N` jumps backward | Conditional branches and PC-relative/register-target jumps | Provisional; ranges, edge cases, and other conditions open |
 | Code/data spaces | Separate logical instruction and data spaces | One byte-addressed ISA address space | Provisional platform/ISA boundary choice |
 
 The clearest distinctive features are counted conditional blocks, explicit forward and backward skip/jump operations, eight general registers, a dedicated NOT instruction, and separate logical instruction/data spaces. Different names alone would not make a useful architectural difference.
