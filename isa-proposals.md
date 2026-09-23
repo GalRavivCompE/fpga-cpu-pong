@@ -46,7 +46,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 ## Completion, errors, and later extensions
 
-16. **Finish and errors.** Proposal: `HALT` stops instruction execution and exposes a success status for simulation/board debugging; invalid opcode, bad alignment, unmapped data access, and out-of-range PC halt with distinct error status. `NOP` advances PC without changing state. Alternative: programs write status to I/O and spin forever, with errors left unspecified. The explicit statuses are easier to debug. RV32I has `ECALL`/`EBREAK` and a broader execution environment rather than a basic HALT.
+16. **Finish and errors — partly reviewed.** Proposal: `HALT` stops instruction execution and exposes a success status for simulation/board debugging; invalid opcode, bad alignment, unmapped data access, and out-of-range PC halt with distinct error status. A dedicated `NOP` is removed because `GHOST 0` already advances PC without changing state. Alternative: programs write status to I/O and spin forever, with errors left unspecified. The explicit statuses are easier to debug. RV32I has `ECALL`/`EBREAK` and a broader execution environment rather than a basic HALT.
 
 17. **Unsigned comparison — provisionally chosen.** `IF_UGT` belongs in the current ISA draft with the same counted-block semantics as signed `IF_GT`, but interprets both registers as unsigned 32-bit values. This is useful when comparing bit patterns, addresses, or sizes in the upper half of the range.
 
