@@ -6,7 +6,8 @@ Status meanings: **open** = being explored; **provisional** = useful working cho
 | --- | --- | --- |
 | CPU word width | Provisional (2026-09-22) | 32-bit general registers, using two's-complement signed interpretation and modular addition/subtraction. Compare the eventual RTL resource cost with the simpler 16-bit alternative before finalizing. |
 | Instruction encoding fields | Open | Fixed 32-bit instruction width is chosen provisionally; opcode, register, and immediate field layouts remain to be designed. |
-| Registers, flags, and memory map | Open | Keep the initial ISA small; define exact behavior before RTL. |
+| General registers | Provisional (2026-09-22) | Eight 32-bit general-purpose registers, tentatively R0–R7. Three bits identify a register in an instruction. This uses a smaller register file and fewer encoding bits than RISC-V's 16- or 32-register base variants, but may require extra RAM accesses in programs with many live values. Fixed 32-bit instructions do not become shorter merely because register fields are smaller. |
+| Flags and detailed memory map | Open | Decide whether any condition flags are needed after drafting complete example programs; assign data RAM and peripheral addresses before RTL. |
 | Microarchitecture | Open | A simple multicycle CPU is a plausible starting point; compare against single-cycle complexity after ISA sketch. Avoid a pipeline initially unless there is a measured need. |
 | HDL and simulator | Open | Choose based on learning preference, board tools, and ability to run automated simulation locally. |
 | FPGA board | Open | Check cost/availability, tool support, on-chip memory, I/O voltage/connectors, and a usable input/output path. |
