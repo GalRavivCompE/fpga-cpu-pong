@@ -30,7 +30,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 9. **Loads and stores — revised provisional choice.** Use `LOAD Rd, [Ra]` and `STORE Rs, [Ra]` for aligned 32-bit word transfers. `Ra` holds the exact byte address; a non-multiple-of-four address is an error. The earlier base-plus-offset operations are removed from the current draft. Software can calculate an offset address with arithmetic. Revisit a direct offset form only if example programs justify it.
 
-10. **Byte order and smaller accesses.** Proposal: define data memory as little-endian now, even though only word transfers are supported initially. Later add byte and halfword loads/stores, with separate sign-extended and zero-extended loads. Alternative: defer byte order until smaller accesses exist, risking a later compatibility break. RV32I has byte, halfword, and word operations in its base ISA.
+10. **Byte order and smaller accesses — deferred.** The current draft supports only aligned 32-bit word loads/stores. Byte and halfword transfers, including signed versus unsigned loads, can be revisited when needed by a program. Byte order is also deferred; it must be settled before smaller transfers are added or binary data formats are standardized. RV32I includes byte, halfword, and word operations in its base ISA.
 
 11. **I/O map.** Proposal: reserve a high region of the data address space for 32-bit peripheral registers; ordinary load/store operations read button state and write output state. Exact addresses depend on the board. Alternative: special I/O instructions or separate I/O address space, adding ISA and bus complexity.
 
