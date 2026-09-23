@@ -6,6 +6,10 @@
 
 The public repository at [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRavivCompE/fpga-cpu-pong) now holds the project record. Implementation remains planned.
 
+## 2026-09-23 — functional ISA draft selected
+
+**Status:** Design only. Reviewed the v1 instruction set and behavior, including explicit counted conditions and fixed-count `GHOST`/`REPEAT`. The next design pass is instruction naming, followed by binary encoding. No instruction has been assembled, simulated, or implemented in RTL; no board has been chosen.
+
 ## Milestone entry template
 
 Template for future milestone entries:

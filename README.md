@@ -14,7 +14,7 @@ I will keep milestones small enough to test and understand. Each milestone shoul
 
 ## Current status
 
-**Planning only.** No ISA encoding, RTL, assembler, game, or FPGA implementation exists yet. A 32-bit datapath and fixed 32-bit instructions are provisional choices; board, HDL, tools, and display remain open.
+**Functional ISA draft selected; implementation not started.** The v1 instruction set and intended behavior have been reviewed. Instruction names and binary encoding remain to be chosen. No RTL, assembler, game, simulation result, or FPGA implementation exists yet. A 32-bit datapath and fixed 32-bit instructions are provisional choices; board, HDL, tools, and display remain open.
 
 ## Priority and first achievable demo
 
