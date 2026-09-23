@@ -9,7 +9,7 @@ The goal is a small, general-purpose 32-bit CPU that is approachable to implemen
 - Eight writable 32-bit registers named `A`–`H`; no hardwired zero register. These letters select registers; they are not memory addresses. Reset clears them and sets the 32-bit program counter (PC) to byte address 0. Any register can hold a number, address, or bit pattern; there are no type tags.
 - Every instruction is one 32-bit word. Program addresses are byte addresses and must be multiples of four. Normal execution advances `PC` by 4. Program fetch and data access have separate logical address spaces; a data load cannot read an instruction word.
 - Data memory is byte addressed. A 32-bit word at numeric address `addr` occupies bytes `addr` through `addr+3`; the next aligned word begins at `addr+4`. Byte order within a word is deferred until smaller transfers are designed.
-- `ADD`, `SUB`, and `MUL` keep the low 32 bits (modulo `2^32`). Signed comparisons interpret bit patterns as two's-complement values. No condition flags are stored.
+- `ADD`, `SUB`, `MUL`, and `ADD_CONST` keep the low 32 bits (modulo `2^32`). Signed comparisons interpret bit patterns as two's-complement values. No condition flags are stored.
 - Instruction counts (`N`) are unsigned 16-bit values, 0–65535, unless stated otherwise. `imm16` is a 16-bit bit pattern; operations called *signed* sign-extend it to 32 bits. The assembler must reject operands outside the stated range instead of silently truncating them.
 
 ## Instruction set
@@ -18,8 +18,8 @@ Notation: `dst`, `src1`, `src2`, `src`, `target_reg`, and `link_reg` are **place
 
 | Group | Instructions | Meaning and reason to include |
 | --- | --- | --- |
-| Constants/copy | `SET_SMALL dst, signed_imm16`; `SET_HIGH dst, imm16`; `MOVE dst, src1` | Load a small signed value; replace bits 31:16 of `dst` while keeping bits 15:0; copy a register. The first two build any 32-bit value. `MOVE` is provisionally chosen as a direct instruction because copying a register is distinct from loading data memory. `SET_SMALL` with `0xFFFF` produces `0xFFFFFFFF` (-1). |
-| Arithmetic | `ADD dst, src1, src2`; `SUB dst, src1, src2`; `MUL dst, src1, src2`; `DIV dst, src1, src2` | `ADD`, `SUB`, and `MUL` write the low 32 bits. `DIV` uses signed two's-complement operands and truncates toward zero (`-7 / 2 = -3`). Division by zero causes a hardware fault. `-2147483648 / -1` wraps to `0x80000000`. A constant must currently be loaded into a register before arithmetic; `ADD_SMALL` is deferred for later review. |
+| Constants/copy | `SET_CONST dst, signed_imm16`; `SET_HIGH dst, imm16`; `MOVE dst, src1` | Load a signed 16-bit constant into a 32-bit register; replace bits 31:16 of `dst` while keeping bits 15:0; copy a register. The first two build any 32-bit value. `MOVE` is provisionally chosen as a direct instruction because copying a register is distinct from loading data memory. `SET_CONST` with `0xFFFF` produces `0xFFFFFFFF` (-1). |
+| Arithmetic | `ADD dst, src1, src2`; `SUB dst, src1, src2`; `MUL dst, src1, src2`; `DIV dst, src1, src2`; `ADD_CONST dst, src1, signed_imm16` | `ADD`, `SUB`, `MUL`, and `ADD_CONST` write the low 32 bits. `ADD_CONST` adds a signed 16-bit constant to a full 32-bit register value; for example, `ADD_CONST B, B, 4` advances a word pointer and `ADD_CONST C, C, -1` decrements a counter. `DIV` uses signed two's-complement operands and truncates toward zero (`-7 / 2 = -3`). Division by zero causes a hardware fault. `-2147483648 / -1` wraps to `0x80000000`. |
 | Bitwise | `AND dst, src1, src2`; `OR dst, src1, src2`; `XOR dst, src1, src2`; `NOT dst, src1` | Provisionally chosen as ordinary bitwise logic gates: each bit position is processed independently. Useful for packed data, masks, and input bits. `NOT` flips all 32 bits, not a Boolean value. |
 | Shifts | `SHL1 dst, src1`; `SHR1 dst, src1` | Move bits by exactly one position. `SHL1` fills the new low bit with zero; `SHR1` copies the old top bit into the new top bit. Repeat in software for larger distances. A zero-filling right shift is not a direct instruction in this draft. |
 | Word memory | `LOAD dst, [src1]`; `STORE src, [src1]` | Move aligned 32-bit words between registers and data memory/I/O. The address is the **number held in** `src1`; `src1` itself is a register name. For an offset address, calculate it in a register first; there is no separate offset opcode. |
@@ -29,7 +29,7 @@ Notation: `dst`, `src1`, `src2`, `src`, `target_reg`, and `link_reg` are **place
 
 **Counts and blocks.** `IF_*` controls exactly N following machine instructions, including any `GHOST` in that range. If the condition is false, none of those N instructions executes. A true `IF_*` does not force all N instructions to execute; control flow inside the block still works normally. This is why a one-instruction conditional block containing `GHOST` can exit a loop. `REPEAT` can revisit the conditional on every iteration. `GHOST 0` simply advances to the next instruction. Counts refer to encoded instructions, not source lines or macro invocations.
 
-**Assembler conveniences, not extra opcodes.** A label can stand in for a `GHOST` destination or `REPEAT` destination; the assembler calculates the count. A block-end label can provide an `IF_*` count. `ADD dst, src2` may expand to `ADD dst, dst, src2`, and similarly for `SUB`. `LOAD_CONST dst, value` may expand to `SET_SMALL` alone if the signed value fits, otherwise to `SET_SMALL` plus `SET_HIGH`. A future assembler could support a fixed numeric address using an explicit scratch register, such as `LOAD_AT A, 256, B` expanding to `SET_SMALL B, 256` followed by `LOAD A, [B]`. This is **not** a separate CPU instruction in this draft. These expansions must be accounted for before branch counts are calculated. There is no special `RETURN` opcode: it is an alias for `JUMP_REG link_reg` in a documented calling convention.
+**Assembler conveniences, not extra opcodes.** A label can stand in for a `GHOST` destination or `REPEAT` destination; the assembler calculates the count. A block-end label can provide an `IF_*` count. `ADD dst, src2` may expand to `ADD dst, dst, src2`, and similarly for `SUB`. `LOAD_CONST dst, value` may expand to `SET_CONST` alone if the signed value fits, otherwise to `SET_CONST` plus `SET_HIGH`. A future assembler could support a fixed numeric address using an explicit scratch register, such as `LOAD_AT A, 256, B` expanding to `SET_CONST B, 256` followed by `LOAD A, [B]`. This is **not** a separate CPU instruction in this draft. These expansions must be accounted for before branch counts are calculated. There is no special `RETURN` opcode: it is an alias for `JUMP_REG link_reg` in a documented calling convention.
 
 **Call convention proposal.** Use `G` as the usual link register, while retaining the ISA's ability to select another link register. A function that calls another function saves its incoming link value in data memory and restores it before returning. A fuller convention for argument, result, and stack registers waits until we write a nested-call example. If `target_reg` and `link_reg` name the same register, the old target is used for the jump before the link value overwrites it.
 
@@ -46,23 +46,21 @@ Yes in principle. A 6-bit opcode supports up to 64 operations. Three register id
 
 ## Example: sum a length-prefixed list
 
-Data memory at address 256 contains a word holding the list length; elements follow at 260, 264, 268, and so on. This length prevents an element equal to a special sentinel from accidentally ending the list. The example leaves the sum in `A`; it reserves `E=4` for stepping to the next word, `F=1` for decrementing the count, and `H=0` for the equality check.
+Data memory at address 256 contains a word holding the list length; elements follow at 260, 264, 268, and so on. This length prevents an element equal to a special sentinel from accidentally ending the list. The example leaves the sum in `A` and reserves `H=0` for the equality check. `ADD_CONST` avoids reserving two additional registers for the constants 4 and 1.
 
 ```text
-SET_SMALL A, 0            ; sum
-SET_SMALL H, 0            ; constant zero
-SET_SMALL E, 4            ; bytes per word
-SET_SMALL F, 1            ; count decrement
-SET_SMALL B, 256          ; B holds a numeric data-memory address
+SET_CONST A, 0            ; sum
+SET_CONST H, 0            ; constant zero
+SET_CONST B, 256          ; B holds a numeric data-memory address
 LOAD C, [B]              ; read the word at data address 256
-ADD B, B, E              ; B now holds address 260
+ADD_CONST B, B, 4         ; B now holds address 260
 loop:
 IF_EQ C, H, 1             ; when count is zero, execute the next GHOST
 GHOST done               ; otherwise IF_EQ skips this instruction
 LOAD D, [B]
 ADD A, A, D
-ADD B, B, E
-SUB C, C, F
+ADD_CONST B, B, 4
+ADD_CONST C, C, -1
 REPEAT loop               ; assembler computes backward count
 done:
 HALT
