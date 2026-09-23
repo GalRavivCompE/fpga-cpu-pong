@@ -24,11 +24,11 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 7. **Bitwise operations.** Proposal: `AND`, `OR`, and `XOR` each read two registers and write one; `NOT dst, src1` inverts all 32 bits. `NOT` has already been discussed as a direct hardware instruction. Alternative: implement only a functionally sufficient subset and synthesize other operations from several instructions; smaller opcode set, longer programs. `AND` is useful for masks in button input registers.
 
-8. **Shifts — revised provisional choice.** Use `SHL1 dst, src1`, `SHR1 dst, src1`, and `SHR_ZERO1 dst, src1`, each moving by one bit. Left shift fills with zero. `SHR1` copies the old top bit, preserving the sign bit; `SHR_ZERO1` fills the new top bit with zero for unsigned bit patterns. Software repeats a shift for larger distances. This replaces the earlier proposal for shift amounts encoded in an instruction or another register. Alternate left-fill and rotate operations are excluded from v1.
+8. **Shifts — revised provisional choice.** Use `LSHIFT dst, src1`, `RSHIFT_SIGN dst, src1`, and `RSHIFT dst, src1`, each moving by one bit. Left shift fills with zero. `RSHIFT_SIGN` copies the old top bit, preserving the sign bit; `RSHIFT` fills the new top bit with zero for unsigned bit patterns. Software repeats a shift for larger distances. This replaces the earlier proposal for shift amounts encoded in an instruction or another register. Alternate left-fill and rotate operations are excluded from v1.
 
 ## Memory and I/O
 
-9. **Loads and stores — accepted v1 scope.** Use `LOAD dst, [src1]` and `STORE src, [src1]` for aligned 32-bit word transfers. `src1` holds the exact byte address; a non-multiple-of-four address is an error. Base-plus-offset operations are excluded from v1. Software calculates an offset address with arithmetic.
+9. **Loads and stores — accepted v1 scope.** Use `READ dst, [src1]` and `WRITE src, [src1]` for aligned 32-bit word transfers. `src1` holds the exact byte address; a non-multiple-of-four address is an error. Base-plus-offset operations are excluded from v1. Software calculates an offset address with arithmetic.
 
 10. **Byte order and smaller accesses — excluded from v1.** Version 1 supports only aligned 32-bit word loads/stores. Byte and halfword transfers, including signed versus unsigned loads, are outside its opcode set. Byte order must be settled in an explicit future version before smaller transfers or binary data formats are standardized. RV32I includes byte, halfword, and word operations in its base ISA.
 
@@ -46,7 +46,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 ## Completion, errors, and later extensions
 
-16. **Finish and errors — provisionally chosen.** `HALT` stops successfully; `ERR_HALT` lets software report a failed self-check and stop. Invalid opcode, bad alignment, unmapped data access, and out-of-range PC stop automatically with a distinct hardware fault cause. A dedicated `NOP` is removed because `GHOST 0` already advances PC without changing state. A continuing `ERR_WARNING` is excluded from v1. RV32I instead has `ECALL`/`EBREAK` and a broader execution environment.
+16. **Finish and errors — provisionally chosen.** `HALT` stops successfully; `FAIL` lets software report a failed self-check and stop. Invalid opcode, bad alignment, unmapped data access, and out-of-range PC stop automatically with a distinct hardware fault cause. A dedicated `NOP` is removed because `GHOST 0` already advances PC without changing state. A continuing `ERR_WARNING` is excluded from v1. RV32I instead has `ECALL`/`EBREAK` and a broader execution environment.
 
 17. **Unsigned comparison — provisionally chosen.** `IF_UGT` belongs in the current ISA draft with the same counted-block semantics as signed `IF_GT`, but interprets both registers as unsigned 32-bit values. This is useful when comparing bit patterns, addresses, or sizes in the upper half of the range.
 
