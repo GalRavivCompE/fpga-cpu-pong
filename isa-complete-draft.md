@@ -20,7 +20,7 @@ Notation: `dst`, `src1`, `src2`, `src`, `target_reg`, and `link_reg` are **place
 
 | Group | Instructions | Meaning and reason to include |
 | --- | --- | --- |
-| Constants/copy | `SET_CONST dst, signed_imm16`; `SET_HIGH dst, imm16`; `DUPE dst, src1` | Load a signed 16-bit constant into a 32-bit register; replace bits 31:16 of `dst` while keeping bits 15:0; duplicate a register's value without changing the source. The first two build any 32-bit value. `DUPE` is a direct instruction because copying a register is distinct from loading data memory. `SET_CONST` with `0xFFFF` produces `0xFFFFFFFF` (-1). The proposed `SET_LOW` name is awaiting a behavior clarification. |
+| Constants/copy | `SET_LOW dst, signed_imm16`; `SET_HIGH dst, imm16`; `DUPE dst, src1` | `SET_LOW` replaces the whole register: the constant fills bits 15:0, and its sign bit fills bits 31:16. `SET_HIGH` instead replaces only bits 31:16 and preserves bits 15:0. Together they build any 32-bit value. `DUPE` copies a register without changing its source. `SET_LOW` with `0xFFFF` produces `0xFFFFFFFF` (-1). |
 | Arithmetic | `ADD dst, src1, src2`; `SUB dst, src1, src2`; `MUL dst, src1, src2`; `DIV dst, src1, src2`; `MOD dst, src1, src2`; `ADD_CONST dst, src1, signed_imm16` | `ADD`, `SUB`, `MUL`, and `ADD_CONST` write the low 32 bits. `ADD_CONST` adds a signed 16-bit constant to a full 32-bit register value; for example, `ADD_CONST B, B, 4` advances a word pointer and `ADD_CONST C, C, -1` decrements a counter. `DIV` uses signed two's-complement operands and truncates toward zero (`-7 / 2 = -3`). `MOD` gives the corresponding signed remainder (`-7 MOD 2 = -1`). A zero divisor faults for either operation. `-2147483648 / -1` wraps to `0x80000000`, and the corresponding remainder is zero. |
 | Bitwise | `AND dst, src1, src2`; `OR dst, src1, src2`; `XOR dst, src1, src2`; `NOT dst, src1` | Provisionally chosen as ordinary bitwise logic gates: each bit position is processed independently. Useful for packed data, masks, and input bits. `NOT` flips all 32 bits, not a Boolean value. |
 | Shifts | `SHL1 dst, src1`; `SHR1 dst, src1`; `SHR_ZERO1 dst, src1` | Move bits by exactly one position. `SHL1` fills the new low bit with zero. `SHR1` copies the old top bit into the new top bit; `SHR_ZERO1` fills it with zero. Repeat in software for larger distances. Names are provisional. |
@@ -29,9 +29,11 @@ Notation: `dst`, `src1`, `src2`, `src`, `target_reg`, and `link_reg` are **place
 | Flow | `GHOST N`; `REPEAT N`; `LEAP target_reg`; `CALL target_reg, link_reg` | `GHOST` unconditionally skips N next instructions: `PC=P+4(N+1)`. `REPEAT` goes to `P-4N`; N must be at least 1. `LEAP` loads the PC from a register. `CALL` first reads the old target, then writes `P+4` to `link_reg`, then jumps to that target. Return with `LEAP link_reg`. The `LEAP` and `CALL` names have been selected. |
 | Finish | `HALT`; `ERR_HALT` | Stop with success or with a software-reported failure, respectively. Automatic hardware faults stop with their own cause status. `GHOST 0` serves as a no-op, so there is no separate `NOP` instruction. |
 
+Although their names form a pair, `SET_LOW` and `SET_HIGH` do different things to the old destination value. If A contains `0x12340000`, then `SET_LOW A, 5` makes A `0x00000005`; the previous upper half is discarded. `SET_HIGH A, 0x1234` then makes A `0x12340005` while preserving its lower half.
+
 **Counts and blocks.** `IF_*` controls exactly N following machine instructions, including any `GHOST` in that range. If the condition is false, none of those N instructions executes. A true `IF_*` does not force all N instructions to execute; control flow inside the block still works normally. This is why a one-instruction conditional block containing `GHOST` can exit a loop. `REPEAT` can revisit the conditional on every iteration. `GHOST 0` simply advances to the next instruction. Counts refer to encoded instructions, not source lines or macro invocations.
 
-**Assembler conveniences, not extra opcodes.** A label can stand in for a `GHOST` destination or `REPEAT` destination; the assembler calculates the count. A block-end label can provide an `IF_*` count. `ADD dst, src2` may expand to `ADD dst, dst, src2`, and similarly for `SUB`. `LOAD_CONST dst, value` may expand to `SET_CONST` alone if the signed value fits, otherwise to `SET_CONST` plus `SET_HIGH`. A future assembler could support a fixed numeric address using an explicit scratch register, such as `LOAD_AT A, 256, B` expanding to `SET_CONST B, 256` followed by `LOAD A, [B]`. This is **not** a separate CPU instruction in this draft. These expansions must be accounted for before branch counts are calculated. There is no special `RETURN` opcode: it is an alias for `LEAP link_reg` in a documented calling convention.
+**Assembler conveniences, not extra opcodes.** A label can stand in for a `GHOST` destination or `REPEAT` destination; the assembler calculates the count. A block-end label can provide an `IF_*` count. `ADD dst, src2` may expand to `ADD dst, dst, src2`, and similarly for `SUB`. `LOAD_CONST dst, value` may expand to `SET_LOW` alone if the signed value fits, otherwise to `SET_LOW` plus `SET_HIGH`. A future assembler could support a fixed numeric address using an explicit scratch register, such as `LOAD_AT A, 256, B` expanding to `SET_LOW B, 256` followed by `LOAD A, [B]`. This is **not** a separate CPU instruction in this draft. These expansions must be accounted for before branch counts are calculated. There is no special `RETURN` opcode: it is an alias for `LEAP link_reg` in a documented calling convention.
 
 **Call convention proposal.** Use `G` as the usual link register, while retaining the ISA's ability to select another link register. A function that calls another function saves its incoming link value in data memory and restores it before returning. A fuller convention for argument, result, and stack registers waits until we write a nested-call example. If `target_reg` and `link_reg` name the same register, the old target is used for the jump before the link value overwrites it.
 
@@ -51,9 +53,9 @@ Yes in principle. A 6-bit opcode supports up to 64 operations. Three register id
 Data memory at address 256 contains a word holding the list length; elements follow at 260, 264, 268, and so on. This length prevents an element equal to a special sentinel from accidentally ending the list. The example leaves the sum in `A` and reserves `H=0` for the equality check. `ADD_CONST` avoids reserving two additional registers for the constants 4 and 1.
 
 ```text
-SET_CONST A, 0            ; sum
-SET_CONST H, 0            ; constant zero
-SET_CONST B, 256          ; B holds a numeric data-memory address
+SET_LOW A, 0            ; sum
+SET_LOW H, 0            ; constant zero
+SET_LOW B, 256          ; B holds a numeric data-memory address
 LOAD C, [B]              ; read the word at data address 256
 ADD_CONST B, B, 4         ; B now holds address 260
 loop:
@@ -72,14 +74,14 @@ For a Pong-like program, the same pattern polls input with `LOAD`, updates posit
 
 ## Example: mirror one button to one output
 
-The addresses below are **illustrative**, not a selected board's memory map. Suppose hardware exposes button bits at data address `0xFFFF0000` and output bits at `0xFFFF0004`. `SET_CONST` and `SET_HIGH` build those 32-bit numbers in registers B and C. Bit 0 is isolated with `AND`, then written to the output. `REPEAT` polls continuously; this program does not reach `HALT` unless reset or a hardware fault stops it.
+The addresses below are **illustrative**, not a selected board's memory map. Suppose hardware exposes button bits at data address `0xFFFF0000` and output bits at `0xFFFF0004`. `SET_LOW` and `SET_HIGH` build those 32-bit numbers in registers B and C. Bit 0 is isolated with `AND`, then written to the output. `REPEAT` polls continuously; this program does not reach `HALT` unless reset or a hardware fault stops it.
 
 ```text
-SET_CONST B, 0
+SET_LOW B, 0
 SET_HIGH B, 0xFFFF       ; B = numeric input address 0xFFFF0000
-SET_CONST C, 4
+SET_LOW C, 4
 SET_HIGH C, 0xFFFF       ; C = numeric output address 0xFFFF0004
-SET_CONST D, 1           ; mask for button bit 0
+SET_LOW D, 1           ; mask for button bit 0
 loop:
 LOAD A, [B]              ; hardware supplies current button bits
 AND A, A, D              ; keep only bit 0
