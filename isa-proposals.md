@@ -36,7 +36,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 ## Control flow
 
-12. **Counted conditions.** Proposal: `IF_EQ`, `IF_NE`, and signed `IF_GT` each compare two registers and have an unsigned count `N`. If the condition is true, execute the next instruction normally; if false, skip the following `N` machine instructions. No hidden flags. Alternative: implement only `IF_EQ` and build other conditions from more instructions, or add a compare/flags register. The three direct conditions reflect an earlier design preference; only `IF_EQ` has been recorded provisionally so far.
+12. **Counted conditions — provisionally chosen.** `IF_EQ`, `IF_NE`, signed `IF_GT`, and unsigned `IF_UGT` each compare two registers and have an unsigned count `N`. If the condition is true, execute the next instruction normally; if false, skip the following `N` machine instructions. Equality and inequality do not depend on signedness. No hidden flags. Alternatives considered: synthesize conditions from fewer instructions or use a compare/flags register.
 
 13. **Forward and backward movement.** Proposal: if the current instruction is at byte address `P`, `GHOST N` sets `PC = P + 4 × (N + 1)` and `REPEAT N` sets `PC = P - 4 × N`. Thus `GHOST 1` skips one following instruction; `REPEAT 1` reruns the previous instruction. `GHOST 0` advances normally; `REPEAT 0` is illegal. Out-of-range targets are errors. Alternative: count from the next PC instead of the current instruction; either convention works if defined consistently. A 16-bit unsigned count would reach up to 65,535 instructions (about 256 KiB), likely beyond the first program memory size.
 
@@ -48,7 +48,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 16. **Finish and errors.** Proposal: `HALT` stops instruction execution and exposes a success status for simulation/board debugging; invalid opcode, bad alignment, unmapped data access, and out-of-range PC halt with distinct error status. `NOP` advances PC without changing state. Alternative: programs write status to I/O and spin forever, with errors left unspecified. The explicit statuses are easier to debug. RV32I has `ECALL`/`EBREAK` and a broader execution environment rather than a basic HALT.
 
-17. **Unsigned comparison.** Proposal for the next version: add `IF_UGT` with the same counted-block semantics as `IF_GT`, interpreting registers as unsigned 32-bit values. Equality and inequality do not depend on signedness. Alternative: synthesize unsigned ordering in software, which is possible but cumbersome. Addresses and sizes may use the upper half of the 32-bit range.
+17. **Unsigned comparison — provisionally chosen.** `IF_UGT` belongs in the current ISA draft with the same counted-block semantics as signed `IF_GT`, but interprets both registers as unsigned 32-bit values. This is useful when comparing bit patterns, addresses, or sizes in the upper half of the range.
 
 18. **Multiply and divide — provisionally included.** The target ISA includes `MUL` and `DIV` register operations. Their signedness and edge cases need a later review. A multicycle hardware implementation is possible; the first board self-check need not execute them. RISC-V places integer multiply/divide in its optional M extension.
 
