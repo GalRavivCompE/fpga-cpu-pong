@@ -40,7 +40,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 14. **Assembler labels.** Proposal: assembly source can write `GHOST done` and `REPEAT loop`; the assembler calculates `N`. A counted conditional can also name the first instruction after its controlled block so the assembler calculates its count. The hardware only sees numeric counts. Alternative: programmers write counts by hand, which is simple for the assembler but fragile when lines are inserted or deleted.
 
-15. **Reusable functions and returns.** Proposal for a later stage: `JUMP_REG Rtarget` jumps to a program address held in a register, and `CALL_REG Rtarget, Rlink` saves the next PC in a writable link register before jumping. A return is `JUMP_REG Rlink`; nested calls save the link value in data memory. Alternative: dedicated `CALL`/`RETURN` with a hardware return stack (easier source code, more special hardware and a depth limit), or defer reusable functions until after the first board demo. Fixed `GHOST`/`REPEAT` counts alone cannot return to different call sites.
+15. **Reusable functions and returns — provisionally chosen.** `JUMP_REG Rtarget` jumps to a program address held in a register. `CALL_REG Rtarget, Rlink` reads the old target value, saves `PC + 4` in the chosen link register, then jumps to the target. A return is `JUMP_REG Rlink`; nested calls save the link value in data memory. The target must be an aligned valid program address. Exact encoding and software calling convention are open. Alternatives considered: dedicated `CALL`/`RETURN` with a hardware return stack (more special hardware and a depth limit), or deferring reusable functions. Fixed `GHOST`/`REPEAT` counts alone cannot return to different call sites.
 
 ## Completion, errors, and later extensions
 
@@ -54,4 +54,4 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 ## First review pass
 
-The highest-impact items to review before a sample program are **5 (constants), 6 (arithmetic immediate), 7 (bitwise), 12 (conditions), 13 (PC/count semantics), and 16 (finish/errors)**. Item 15 (function returns) is the biggest general-purpose capability missing from the current draft. Everything here remains a proposal until the user accepts or revises it.
+The highest-impact items to review before a sample program are **5 (constants), 6 (arithmetic immediate), 7 (bitwise), 12 (conditions), 13 (PC/count semantics), and 16 (finish/errors)**. Item 15 has been provisionally selected; it still needs encoding and an implementation. Other items remain proposals until the user accepts or revises them.

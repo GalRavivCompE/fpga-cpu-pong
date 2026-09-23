@@ -34,7 +34,7 @@ The clearest distinctive features are counted conditional blocks, explicit forwa
 
 | Feature | Why it matters | Options |
 | --- | --- | --- |
-| Reusable functions and returns | `GHOST` and `REPEAT` use fixed forward/backward distances; they do not naturally return to different callers | Register-target jump plus a way to save return PC; dedicated call/return; defer while writing straight-line/loop programs |
+| Reusable functions and returns | `GHOST` and `REPEAT` use fixed forward/backward distances; they do not naturally return to different callers | **Provisional choice after this audit:** register-target jump plus call that saves return PC in a chosen register. Encoding and implementation remain open |
 | Byte and halfword data | Text, packed structures, and many devices benefit from smaller accesses | Add load/store byte and halfword; keep word-only v1 and let devices use word-sized registers |
 | Unsigned comparison | Addresses, sizes, and bit patterns may occupy the upper half of 32-bit space | Direct unsigned condition; derive from other operations; defer if first programs avoid it |
 | Multiply/divide | Speeds up some algorithms; Pong can use addition/subtraction and shifts | Implement hardware instructions; software subroutines; defer. RISC-V places these in its optional M extension |
