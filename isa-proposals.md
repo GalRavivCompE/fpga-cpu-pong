@@ -24,7 +24,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 7. **Bitwise operations.** Proposal: `AND`, `OR`, and `XOR` each read two registers and write one; `NOT dst, src1` inverts all 32 bits. `NOT` has already been discussed as a direct hardware instruction. Alternative: implement only a functionally sufficient subset and synthesize other operations from several instructions; smaller opcode set, longer programs. `AND` is useful for masks in button input registers.
 
-8. **Shifts — revised provisional choice.** Use `SHL1 dst, src1`, `SHR1 dst, src1`, and `SHR_ZERO1 dst, src1`, each moving by one bit. Left shift fills with zero. `SHR1` copies the old top bit, preserving the sign bit; `SHR_ZERO1` fills the new top bit with zero for unsigned bit patterns. Software repeats a shift for larger distances. This replaces the earlier proposal for shift amounts encoded in an instruction or another register. A possible alternate left-fill or rotate operation still needs clarification and review.
+8. **Shifts — revised provisional choice.** Use `SHL1 dst, src1`, `SHR1 dst, src1`, and `SHR_ZERO1 dst, src1`, each moving by one bit. Left shift fills with zero. `SHR1` copies the old top bit, preserving the sign bit; `SHR_ZERO1` fills the new top bit with zero for unsigned bit patterns. Software repeats a shift for larger distances. This replaces the earlier proposal for shift amounts encoded in an instruction or another register. Alternate left-fill and rotate operations are deferred.
 
 ## Memory and I/O
 
