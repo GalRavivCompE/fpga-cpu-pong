@@ -1,6 +1,6 @@
 # Complete candidate ISA, revision 0.1
 
-**Status: proposed design for review, not a finalized or working ISA.** Prepared 2026-09-22. Nothing here has been encoded, assembled, simulated, or run on an FPGA. Previously agreed choices remain **provisional** in [decisions.md](decisions.md); the additional choices below are my recommendations for a coherent first ISA. We can accept, change, or defer them after reviewing the whole design.
+**Status: proposed design for review, not a finalized or working ISA.** Prepared 2026-09-22. Nothing here has been encoded, assembled, simulated, or run on an FPGA. Earlier choices remain **provisional** in [decisions.md](decisions.md); additional instructions below are candidates for review. Each may be accepted, changed, or deferred.
 
 The goal is a small, general-purpose 32-bit CPU that is approachable to implement on an FPGA and pleasant enough to program by hand. Instruction names here describe behavior; final distinctive names can be chosen after semantics are stable. Inspiration and comparison: [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html) and [Astro8](https://sam-astro.github.io/Astro8-Computer/docs/Architecture/Instruction%20Set.html). Similar basic arithmetic is useful; counted conditional blocks, `GHOST`, `REPEAT`, eight writable registers, and separate program/data spaces make this design meaningfully different.
 
@@ -38,13 +38,13 @@ Notation: `Rd` receives a result, `Ra` and `Rb` are sources, and `[A]` means dat
 ## Memory, I/O, and error behavior
 
 - Reserve a high region of **data** addresses for memory-mapped peripheral registers. `LOAD` and `STORE` read buttons and control LEDs or later video hardware through that region. Exact addresses and peripheral behavior are board/platform decisions, not instruction opcodes. Physical buttons need synchronization/debouncing in supporting hardware. The game rules, positions, collision response, and score updates run as CPU software.
-- The initial board milestone can implement word loads/stores and word-sized I/O first. Byte/halfword operations are in the candidate *completed* ISA but are not a prerequisite for a running CPU. We should freeze their opcodes before distributing binary programs, or declare early binaries experimental.
+- The initial board milestone can implement word loads/stores and word-sized I/O first. Byte/halfword operations are in the candidate *completed* ISA but are not a prerequisite for a running CPU. Their opcodes should be fixed before distributing binary programs; earlier binaries should be marked experimental.
 - An invalid opcode, illegal reserved bit, misaligned instruction target or word/halfword access, unmapped data access, or program address outside installed program memory stops execution with an error code distinguishable from `HALT`. An access has no partial side effect on error. The simulator should report the failing PC and address; the board may show a compact status on LEDs or serial output. Exact electrical status interface is implementation-specific.
-- Polling input is sufficient for the first interactive game. Interrupts, traps, privilege levels, memory fences, multiply, and divide are outside this proposed first ISA. Software routines can multiply/divide if needed; we can add hardware after a real program shows a benefit.
+- Polling input is sufficient for the first interactive game. Interrupts, traps, privilege levels, memory fences, multiply, and divide are outside this proposed first ISA. Software routines can multiply/divide if needed; hardware can be added when a real program shows a benefit.
 
 ## Does a 32-bit instruction fit?
 
-Yes in principle. A 6-bit opcode supports up to 64 operations. Three register identifiers consume 9 bits, and a 16-bit immediate/count consumes 16 bits, leaving one bit (`6+9+16+1=32`). The table has fewer than 64 operation names. Different instructions use different subsets of those fields, and unused fields can be required to equal zero. The **exact bit layout and opcode numbers remain unassigned** until we review this draft. A uniform format is convenient but not required. An immediate shift uses five low immediate bits; the rest must be zero. Fixed 32-bit instructions keep counted skips simple even though they are not compact in program memory.
+Yes in principle. A 6-bit opcode supports up to 64 operations. Three register identifiers consume 9 bits, and a 16-bit immediate/count consumes 16 bits, leaving one bit (`6+9+16+1=32`). The table has fewer than 64 operation names. Different instructions use different subsets of those fields, and unused fields can be required to equal zero. The **exact bit layout and opcode numbers remain unassigned** pending review. A uniform format is convenient but not required. An immediate shift uses five low immediate bits; the rest must be zero. Fixed 32-bit instructions keep counted skips simple even though they are not compact in program memory.
 
 ## Example: sum a length-prefixed list
 
@@ -72,4 +72,4 @@ For a Pong-like program, the same pattern polls input with `LOAD`, updates posit
 
 ## Review map
 
-We can review this draft in a few larger passes: (1) core values/arithmetic, (2) memory and I/O, (3) conditions and control flow, (4) errors and extensions. For each pass, compare the alternatives and decide **accept**, **change**, or **defer**. Then assign binary encodings, build a tiny assembler and reference simulator, and only then write RTL. No entry in this draft should be labeled *working* until it passes a reproducible test.
+Review can proceed in a few larger passes: (1) core values/arithmetic, (2) memory and I/O, (3) conditions and control flow, (4) errors and extensions. For each pass, compare alternatives and decide **accept**, **change**, or **defer**. The next steps are binary encoding, a small assembler and reference simulator, and then RTL. No entry in this draft is *working* until it passes a reproducible test.

@@ -2,9 +2,9 @@
 
 For a single end-to-end candidate rather than reviewing items one at a time, see [Complete candidate ISA, revision 0.1](isa-complete-draft.md). This numbered file preserves the original alternatives and decision history.
 
-**Status: proposals, not decisions.** Prepared 2026-09-22 from the [gap audit](isa-gap-audit.md) and the current [decision log](decisions.md). No ISA encoding, assembler, or RTL is implemented. The names below describe behavior; final mnemonics can be chosen later. Review items by number and mark each **accept**, **change**, **defer**, or **question**. They do not have to be reviewed all at once.
+**Status: proposals, not decisions.** Prepared 2026-09-22 from the [gap audit](isa-gap-audit.md) and the current [decision log](decisions.md). No ISA encoding, assembler, or RTL is implemented. The names below describe behavior; final mnemonics can be chosen later. Items can be marked **accept**, **change**, **defer**, or **question** during review.
 
-The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html). Its optional extensions are described in the [ISA introduction](https://docs.riscv.org/reference/isa/v20240411/unpriv/intro.html). Our aim is a coherent custom CPU, not RISC-V compatibility.
+The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html). Its optional extensions are described in the [ISA introduction](https://docs.riscv.org/reference/isa/v20240411/unpriv/intro.html). The aim is a coherent custom CPU, without RISC-V compatibility as a requirement.
 
 ## Machine state and instruction format
 
@@ -36,7 +36,7 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 ## Control flow
 
-12. **Counted conditions.** Proposal: `IF_EQ`, `IF_NE`, and signed `IF_GT` each compare two registers and have an unsigned count `N`. If the condition is true, execute the next instruction normally; if false, skip the following `N` machine instructions. No hidden flags. Alternative: implement only `IF_EQ` and build other conditions from more instructions, or add a compare/flags register. The three direct conditions reflect the user's earlier preference; only `IF_EQ` has been recorded provisionally so far.
+12. **Counted conditions.** Proposal: `IF_EQ`, `IF_NE`, and signed `IF_GT` each compare two registers and have an unsigned count `N`. If the condition is true, execute the next instruction normally; if false, skip the following `N` machine instructions. No hidden flags. Alternative: implement only `IF_EQ` and build other conditions from more instructions, or add a compare/flags register. The three direct conditions reflect an earlier design preference; only `IF_EQ` has been recorded provisionally so far.
 
 13. **Forward and backward movement.** Proposal: if the current instruction is at byte address `P`, `GHOST N` sets `PC = P + 4 × (N + 1)` and `REPEAT N` sets `PC = P - 4 × N`. Thus `GHOST 1` skips one following instruction; `REPEAT 1` reruns the previous instruction. `GHOST 0` advances normally; `REPEAT 0` is illegal. Out-of-range targets are errors. Alternative: count from the next PC instead of the current instruction; either convention works if defined consistently. A 16-bit unsigned count would reach up to 65,535 instructions (about 256 KiB), likely beyond the first program memory size.
 
@@ -56,4 +56,4 @@ The comparison baseline is [RISC-V RV32I](https://docs.riscv.org/reference/isa/v
 
 ## First review pass
 
-The highest-impact items to review before a sample program are **5 (constants), 6 (arithmetic immediate), 7 (bitwise), 12 (conditions), 13 (PC/count semantics), and 16 (finish/errors)**. Item 15 has been provisionally selected; it still needs encoding and an implementation. Other items remain proposals until the user accepts or revises them.
+This was the initial review order, before the [complete candidate ISA](isa-complete-draft.md) and its sample program were drafted: **5 (constants), 6 (arithmetic immediate), 7 (bitwise), 12 (conditions), 13 (PC/count semantics), and 16 (finish/errors)**. Item 15 was provisionally selected; it still needs encoding and an implementation. Other items remain proposals until reviewed and recorded in the decision log.

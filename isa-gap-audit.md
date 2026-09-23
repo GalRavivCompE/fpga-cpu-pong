@@ -1,12 +1,14 @@
 # Draft ISA gap audit against RISC-V RV32I
 
-**Status:** Analysis only, 2026-09-22. No CPU, assembler, or instruction encoding has been implemented or verified. This compares the current working ideas with the RISC-V **base integer** ISA (RV32I), not every optional RISC-V extension. A missing RV32I feature is not automatically a requirement for our CPU.
+This is an earlier comparison snapshot. The [complete candidate ISA](isa-complete-draft.md) is the current proposal; this audit preserves the questions that led to it.
+
+**Status:** Historical analysis snapshot, 2026-09-22. No CPU, assembler, or instruction encoding has been implemented or verified. This compares the earlier working ideas with the RISC-V **base integer** ISA (RV32I), not every optional RISC-V extension. A missing RV32I feature is not automatically a project requirement.
 
 Primary reference: [RISC-V RV32I specification](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html). The [RISC-V introduction](https://docs.riscv.org/reference/isa/v20240411/unpriv/intro.html) describes its address space and optional extensions.
 
-## What our draft already covers or proposes
+## What the earlier draft covered or proposed
 
-| Area | Our draft | RV32I comparison | Status |
+| Area | Earlier draft | RV32I comparison | Status |
 | --- | --- | --- | --- |
 | Basic machine state | Eight 32-bit general registers; PC implied | 32 registers, including a hardwired zero register; PC | Register count provisional; PC reset and exact behavior open |
 | Arithmetic | Three-operand `ADD`/`SUB`, modulo 2^32; two-operand shorthand discussed | Three-operand `ADD`/`SUB`, low 32 bits retained | Operation discussed; exact formats and shorthand open |
@@ -24,7 +26,7 @@ The clearest distinctive features are counted conditional blocks, explicit forwa
 | --- | --- | --- | --- |
 | Exact constant construction | A program must initialize pointers, counters, and masks | Sign-extend a small immediate then replace the upper half; zero-extend then replace upper half; use a data constant table | Sign-extend small values for convenient -1/0/1, with an upper-half replacement instruction for any 32-bit pattern |
 | Arithmetic with constants | Advancing a pointer by 4 or decrementing a count should be easy to write | Add/subtract immediate instructions; preload constants in registers; assembler macros expanding to several instructions | Consider one `ADD_IMM`; compare program length and encoding cost first |
-| Conditions | The user proposed equality, inequality, and signed greater-than; only `IF_EQ` is specified | Direct `IF_NE`/`IF_GT`; synthesize conditions from fewer primitives; use condition flags | Sketch all three direct forms, then check encoding and RTL cost |
+| Conditions | Equality, inequality, and signed greater-than were proposed; only `IF_EQ` is specified | Direct `IF_NE`/`IF_GT`; synthesize conditions from fewer primitives; use condition flags | Sketch all three direct forms, then check encoding and RTL cost |
 | Bit manipulation | Buttons and peripheral registers often pack fields into bits | Add `AND`/`OR`/`XOR` and shifts; synthesize some in software | `AND` is important for button masks; decide OR/XOR/shifts from sample programs |
 | Program completion and invalid instructions | A board self-check needs an observable finish/failure | `HALT` plus status; loop forever and write a status register; trap mechanism | A small `HALT`/error behavior seems useful for simulation and board bring-up |
 | Precise PC rules | `IF_EQ`, `GHOST`, and `REPEAT` must agree on what N counts and where execution resumes | Define counts relative to current instruction or following instruction; define N=0 and out-of-range targets | Specify PC equations and edge cases before RTL |
@@ -42,4 +44,4 @@ The clearest distinctive features are counted conditional blocks, explicit forwa
 
 ## Next learning exercise
 
-Write a short list-sum program and a button-input loop using only the provisional operations. Mark every place where an instruction's behavior is undefined or a missing operation makes the code awkward. Then choose additions using that evidence. This checks our ISA against actual programs before opcode bits are assigned.
+A short list-sum program now appears in the [complete candidate ISA](isa-complete-draft.md). A button-input loop remains to be drafted. These programs should expose undefined behavior or awkward missing operations before opcode bits are assigned.

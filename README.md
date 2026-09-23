@@ -1,16 +1,16 @@
 # FPGA CPU Pong
 
-The current complete **proposed** ISA is in [isa-complete-draft.md](isa-complete-draft.md). It is a review draft, not an implemented CPU.
+I'm designing a CPU with my own instruction set, building it on an FPGA, and using it to run an interactive game. This repository documents the design, experiments, mistakes, and working results as the project develops.
 
-Build a CPU with a custom ISA on an FPGA and demonstrate it executing an interactive game program. The game rules and state updates must execute as CPU instructions. Supporting hardware may sample inputs and produce video or other output.
+The current [ISA draft](isa-complete-draft.md) is a proposal for review. No CPU has been implemented yet.
 
 ## Learning comes first
 
-The main goal is to learn CPU design, digital verification, FPGA tools, and engineering tradeoffs. A finished Pong demo is valuable only if its design and behavior are understood.
+My main goal is to learn CPU design, digital verification, FPGA tools, and engineering tradeoffs. A finished Pong demo matters only if I understand how it works.
 
-For each major step, start with a question or a small design exercise. I will explain the relevant ideas, compare options, and ask for your reasoning before settling important architecture choices. You should have room to sketch instructions, predict behavior, write or modify modules, and inspect waveforms yourself. I can provide examples, review designs and code, help debug, and fill in tedious support work, but I should not silently implement the whole CPU or present unexplained code as progress.
+For each major step, I want to compare options, make a prediction, then test it. I plan to sketch instructions, write and modify modules, inspect waveforms, and record why I made each design choice. Drafts and suggestions are starting points for my review, not evidence that a feature works.
 
-Keep milestones small enough to test and understand. Record what you expected, what the simulation or board actually did, and what you learned. If a result is confusing, pause to explain it before adding more features.
+I will keep milestones small enough to test and understand. Each milestone should record my prediction, the simulation or board result, and what I learned.
 
 ## Current status
 
@@ -18,9 +18,9 @@ Keep milestones small enough to test and understand. Record what you expected, w
 
 ## Priority and first achievable demo
 
-**Priority: get the CPU executing correctly on an FPGA board.** A screen is optional for the first hardware demonstration. The first board program should run a small self-check and expose a clear result through LEDs or a serial connection, depending on the board chosen. This proves fetch, decode, arithmetic, branching, memory, reset, and physical output with a reproducible test. Then run the game logic on the same CPU.
+**My first hardware priority is to get the CPU executing correctly on an FPGA board.** A screen is optional for the first demonstration. A small self-check program can show a result through LEDs or a serial connection, depending on the board chosen. That would give me a reproducible way to check fetch, decode, arithmetic, control flow, memory, reset, and physical output before adding the game.
 
-Before hardware, run a small program on the CPU in simulation that repeatedly reads two player inputs, updates paddle and ball positions, detects wall/paddle collisions, tracks a score, and writes the resulting game state to memory-mapped registers. A testbench checks the state transitions and observes at least one scored point. A simple software model of the same rules can serve as a reference.
+Before hardware, I want to simulate small programs that exercise arithmetic, memory, and control flow. Once the CPU passes those checks and runs on a board, I can add game software that reads player inputs, updates paddle and ball positions, handles collisions and scoring, and writes game state to memory-mapped registers. Simulation can check those state changes before I try the game on hardware.
 
 The first physical game demo can use the same program and register interface. Its output could be LEDs or a serial terminal. Video is a later integration milestone if time, board features, and interest support it.
 
@@ -49,16 +49,16 @@ The hardware must not decide collisions or scores for the game demo. A renderer 
 
 ## Proposed sequence
 
-1. Specify a minimal game-state interface and write a Python reference step function with representative test cases.
-2. Sketch two small ISA encodings (16-bit and 32-bit datapaths) sufficient for loads/stores, arithmetic, comparison/branch, and constants. Estimate instruction counts for one game update.
-3. Choose a first architecture using those estimates, then document the ISA precisely: registers, instruction formats, addressing, flags/branches, reset, and memory map.
-4. Implement and simulate the CPU, starting with tiny arithmetic and branch programs, then memory-mapped I/O.
-5. Choose a board and put the CPU on it. Run a self-check program and show its result through a physical output. Record resource usage and timing.
-6. Run the game program on the board with physical input and observable game state. Add video if it still fits the project's goals and schedule.
+1. Review the [ISA proposal](isa-complete-draft.md) as a whole, then decide which instructions the first board program needs.
+2. Choose a board, HDL, simulator, and toolchain based on availability and a simple input/output path. Revisit the provisional 32-bit width if the board or synthesis results give a reason to.
+3. Define binary encodings and build a small assembler or encoder plus a reference simulator.
+4. Implement and simulate the CPU with small arithmetic, memory, and control-flow programs.
+5. Put the CPU on the board, run a self-check program, and show its result through a physical output. Record resource usage and timing.
+6. Develop and simulate game software, then run it on the board with physical input and observable game state. Add video if it fits the project's goals and schedule.
 
 ## Documenting progress on GitHub
 
-This repository is the project record. For each milestone, update [progress.md](progress.md) with what you expected, what ran, how to reproduce it, evidence (simulation output or board observation), what you learned, and known limitations. Record architecture choices in [decisions.md](decisions.md). Keep example programs, testbenches, and build commands in the repository as they are developed. Label proposed features as planned and tested behavior as working.
+This repository is my project record. For each milestone, I will update [progress.md](progress.md) with a prediction, what ran, how to reproduce it, evidence, what I learned, and known limitations. [decisions.md](decisions.md) records architecture choices. Proposed features stay labeled as proposals until testing shows what actually works.
 
 The public project repository is [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRavivCompE/fpga-cpu-pong).
 
