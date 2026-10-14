@@ -45,6 +45,18 @@ REPEAT loop
 
 This loop does not reach `HALT` during normal operation. A future board test can map the output to an LED. For a Pong-like program, software would also update ball and paddle state, handle collisions and scores, and write game-state registers; hardware could turn those registers into pixels.
 
+## Read one byte from a packed word
+
+Suppose data memory contains the 32-bit word `0x44332211` at byte address 256. With little-endian layout, address 257 holds `0x22`.
+
+```text
+SET_LOW B, 257
+READ_BYTE A, [B]        ; A = 0x00000022
+HALT
+```
+
+This is a design sketch. It assumes the upper half of B is zero after reset; otherwise `SET_HIGH B, 0` is also needed. A simulator should check reads at addresses 256, 257, 258, and 259, including the zero-filled upper 24 bits.
+
 ## Calling convention remains open
 
 `CALL target_reg, link_reg` saves the byte address of the following instruction in `link_reg`; `LEAP link_reg` returns. One proposal is to use G as the usual link register. A nested call would save its incoming link value in data memory and restore it before returning. Argument, result, and stack conventions need a worked example before they are adopted.

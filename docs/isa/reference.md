@@ -6,7 +6,7 @@
 
 - The current candidate has eight writable 32-bit registers named `A` through `H`; 16 registers remain an open alternative. `dst` is a register receiving a result; `src`, `src1`, and `src2` are source registers. All source values are read before a destination is written, so `ADD A, A, B` is valid.
 - The program counter (`PC`) and memory addresses are numeric **byte addresses**. Each instruction is 32 bits, at an address divisible by four. Program and data memory are separate logical spaces. Normal execution advances the PC by four bytes.
-- `[B]` means the 32-bit data word at the numeric address **held in register B**. It does not mean the value of B itself. Word transfers require addresses divisible by four.
+- `[B]` means the data at the numeric address **held in register B**. It does not mean the value of B itself. `READ` and `WRITE` transfer 32-bit words and require addresses divisible by four; `READ_BYTE` transfers one byte and accepts any valid byte address. Within a word, the lowest address holds bits 7:0 (little-endian order).
 - `N` is a fixed unsigned count of machine instructions encoded in an instruction, not a register or a count of assembly source lines. Labels may let a future assembler calculate `N`. The draft count range is 0–65535. `imm16` is a 16-bit value embedded in an instruction.
 - Arithmetic keeps the low 32 bits where noted. Signed values use two's complement. There are no stored comparison flags. `HALT` means successful stop, `FAIL` means a program-reported failure, and invalid operations stop with a distinct hardware fault. Exact binary encoding remains open.
 
@@ -14,7 +14,7 @@
 
 | Values and arithmetic | Logic and shifts | Memory and control |
 | --- | --- | --- |
-| [SET_LOW](#set_low), [SET_HIGH](#set_high), [DUPE](#dupe) | [AND](#and), [OR](#or), [XOR](#xor), [NOT](#not) | [READ](#read), [WRITE](#write) |
+| [SET_LOW](#set_low), [SET_HIGH](#set_high), [DUPE](#dupe) | [AND](#and), [OR](#or), [XOR](#xor), [NOT](#not) | [READ](#read), [READ_BYTE](#read_byte), [WRITE](#write) |
 | [ADD](#add), [SUB](#sub), [MUL](#mul) | [LSHIFT](#lshift), [RSHIFT](#rshift), [RSHIFT_SIGN](#rshift_sign) | [IF_EQ](#if_eq), [IF_NE](#if_ne), [IF_GT](#if_gt), [IF_UGT](#if_ugt) |
 | [DIV](#div), [MOD](#mod), [ADD_CONST](#add_const) | | [GHOST](#ghost), [REPEAT](#repeat), [LEAP](#leap), [CALL](#call), [COUNT](#count), [HALT](#halt), [FAIL](#fail) |
 
@@ -130,6 +130,14 @@ All opcode IDs below are **TBD**. Assigning an ID is part of the next encoding d
 **Opcode ID:** TBD  
 **Syntax:** `READ dst, [address_reg]`  
 **Effect:** Read one 32-bit word from data memory or a mapped input register at the numeric byte address held in `address_reg`. For example, if B contains 256, `READ A, [B]` reads data address 256 into A. Misaligned or unmapped addresses cause a hardware fault.
+
+### READ_BYTE
+
+**Opcode ID:** TBD
+
+**Syntax:** `READ_BYTE dst, [address_reg]`
+
+**Effect:** Read one 8-bit value from the numeric data-memory byte address held in `address_reg`, then zero-extend it to 32 bits in `dst`. Any valid byte address is allowed; alignment to four is not required. For example, if a word at address 256 is `0x44332211`, `READ_BYTE A, [B]` with B = 257 sets A to `0x00000022`. A byte read from a mapped peripheral is valid only if that peripheral's memory-map specification supports it; otherwise it faults. An unmapped address also faults. This instruction does not modify memory.
 
 ### WRITE
 

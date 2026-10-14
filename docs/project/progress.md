@@ -22,6 +22,10 @@ The public repository at [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRav
 
 **Status:** Documentation organization only. Moved the current ISA reference, examples, and comparisons into `docs/isa/`, and project decisions and progress into `docs/project/`. Removed superseded proposal and audit files from the current tree; Git history retains them. No CPU behavior or implementation changed.
 
+## 2026-10-14 — byte read added to ISA draft
+
+**Status:** Design only. Added `READ_BYTE dst, [address_reg]` for zero-extended 8-bit reads from any valid data byte address and specified little-endian word layout. Byte writes remain outside v1. Updated the ISA comparison and decision log. Opcode encoding, RTL, and simulation are still pending.
+
 ## Milestone entry template
 
 Template for future milestone entries:
