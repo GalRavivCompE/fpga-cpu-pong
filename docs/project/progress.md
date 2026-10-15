@@ -30,6 +30,10 @@ The public repository at [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRav
 
 **Status:** Design only. Assigned six-bit opcode values to all 30 candidate instructions, five-bit register fields, and 16-bit immediate/count fields where needed. Specified zero reserved bits, invalid register codes, and two manually encoded examples. No assembler, decoder, RTL, or simulation result exists yet. The first CPU still proposes eight physical registers; wider register fields reserve room for future choices.
 
+## 2026-10-14 — register codes assigned
+
+**Status:** Design only. Revised the candidate to use all 32 register codes: R0 always reads as zero and discards writes; R1–R31 are writable. Updated instruction examples and ISA comparisons. The register-file circuit and its FPGA cost remain unmeasured; no CPU behavior has been verified in simulation or on a board.
+
 ## Milestone entry template
 
 Template for future milestone entries:

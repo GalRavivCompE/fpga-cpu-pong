@@ -4,9 +4,9 @@
 
 ## Machine and notation
 
-- The current candidate has eight writable 32-bit registers named `A` through `H`. Their five-bit codes are A=`0` through H=`7`; codes `8`–`31` fault in v1. The wider field leaves room to reconsider the physical register count later. `dst` is a register receiving a result; `src`, `src1`, and `src2` are source registers. All source values are read before a destination is written, so `ADD A, A, B` is valid.
+- Five-bit register codes name `R0`–`R31`. `R0` always reads as 32-bit zero; a write to `R0` discards the result. `R1`–`R31` are writable 32-bit registers. `dst` is a register receiving a result; `src`, `src1`, and `src2` are source registers. All source values are read before a destination is written, so `ADD R1, R1, R2` is valid. The choice of storage circuit for the 31 writable registers remains an implementation decision.
 - The program counter (`PC`) and memory addresses are numeric **byte addresses**. Each instruction is 32 bits, at an address divisible by four. Program and data memory are separate logical spaces. Normal execution advances the PC by four bytes.
-- `[B]` means the data at the numeric address **held in register B**. It does not mean the value of B itself. `READ` and `WRITE` transfer 32-bit words and require addresses divisible by four; `READ_BYTE` transfers one byte and accepts any valid byte address. Within a word, the lowest address holds bits 7:0 (little-endian order).
+- `[R2]` means the data at the numeric address **held in register R2**. It does not mean the value of R2 itself. `READ` and `WRITE` transfer 32-bit words and require addresses divisible by four; `READ_BYTE` transfers one byte and accepts any valid byte address. Within a word, the lowest address holds bits 7:0 (little-endian order).
 - `N` is a fixed unsigned count of machine instructions encoded in an instruction, not a register or a count of assembly source lines. Labels may let a future assembler calculate `N`. Its encoded range is 0–65535, although `REPEAT` requires at least one. `imm16` is a 16-bit value embedded in an instruction.
 - Arithmetic keeps the low 32 bits where noted. Signed values use two's complement. There are no stored comparison flags. `HALT` means successful stop, `FAIL` means a program-reported failure, and invalid operations stop with a distinct hardware fault.
 
@@ -34,7 +34,7 @@ Every instruction is one 32-bit word. Bits 31:26 always hold a six-bit opcode. T
 
 For the two-register layout, bits 15:0 are zero. In layouts with a 16-bit value, bits 15:0 hold that value instead; the third-register field therefore overlaps the value field across different layouts. `ADD_CONST` sign-extends its 16-bit value, while `IF_*`, `GHOST`, and `REPEAT` treat theirs as unsigned counts. Opcode `0x00` is invalid, so an all-zero instruction word faults instead of silently acting as a no-op.
 
-For example, `ADD A, B, C` is `0x10011000`: opcode `0x04` in bits 31:26, A=`0` in 25:21, B=`1` in 20:16, and C=`2` in 15:11. `IF_EQ A, B, 2` is `0xA0010002`: opcode `0x28`, A=`0`, B=`1`, count=`2`. These are instruction **words**; how a future ROM image serializes words into bytes remains to be specified.
+For example, `ADD R1, R2, R3` is `0x10221800`: opcode `0x04` in bits 31:26, R1=`1` in 25:21, R2=`2` in 20:16, and R3=`3` in 15:11. `IF_EQ R1, R0, 2` is `0xA0200002`: opcode `0x28`, R1=`1`, R0=`0`, count=`2`. These are instruction **words**; how a future ROM image serializes words into bytes remains to be specified.
 
 Opcode IDs are grouped by purpose for readability. The grouping does not add hidden operations or change the fixed field positions. Unassigned codes, including `0x00`, fault in v1.
 
@@ -54,7 +54,7 @@ Within each row, instruction names correspond to opcode values in ascending orde
 
 **Opcode ID:** `0x01`\
 **Syntax:** `SET_LOW dst, imm16`  
-**Effect:** Replace bits 15:0 of `dst` with `imm16`; preserve bits 31:16. It does **not** sign extend. If A was `0x12340000`, `SET_LOW A, 5` makes it `0x12340005`.
+**Effect:** Replace bits 15:0 of `dst` with `imm16`; preserve bits 31:16. It does **not** sign extend. If R1 was `0x12340000`, `SET_LOW R1, 5` makes it `0x12340005`.
 
 ### SET_HIGH
 
@@ -102,7 +102,7 @@ Within each row, instruction names correspond to opcode values in ascending orde
 
 **Opcode ID:** `0x09`\
 **Syntax:** `ADD_CONST dst, src1, signed_imm16`  
-**Effect:** Sign extend the embedded 16-bit number and add it to `src1`, keeping the low 32 bits. `ADD_CONST B, B, 4` advances a word address; `ADD_CONST B, B, -1` decrements a value.
+**Effect:** Sign extend the embedded 16-bit number and add it to `src1`, keeping the low 32 bits. `ADD_CONST R2, R2, 4` advances a word address; `ADD_CONST R2, R2, -1` decrements a value.
 
 ## Logic and shifts
 
@@ -135,7 +135,7 @@ Within each row, instruction names correspond to opcode values in ascending orde
 **Opcode ID:** `0x14`\
 **Syntax:** `LSHIFT dst, src1, src2`
 
-**Effect:** Shift the 32-bit value in `src1` left by the unsigned distance in `src2`. Discard bits shifted past the top; fill from the right with zeros. A distance of zero copies `src1`; a distance of 32 or more gives zero. For example, if B is 3 and C is 2, `LSHIFT A, B, C` gives A = 12.
+**Effect:** Shift the 32-bit value in `src1` left by the unsigned distance in `src2`. Discard bits shifted past the top; fill from the right with zeros. A distance of zero copies `src1`; a distance of 32 or more gives zero. For example, if R2 is 3 and R3 is 2, `LSHIFT R1, R2, R3` gives R1 = 12.
 
 ### RSHIFT
 
@@ -157,7 +157,7 @@ Within each row, instruction names correspond to opcode values in ascending orde
 
 **Opcode ID:** `0x20`\
 **Syntax:** `READ dst, [address_reg]`  
-**Effect:** Read one 32-bit word from data memory or a mapped input register at the numeric byte address held in `address_reg`. For example, if B contains 256, `READ A, [B]` reads data address 256 into A. Misaligned or unmapped addresses cause a hardware fault.
+**Effect:** Read one 32-bit word from data memory or a mapped input register at the numeric byte address held in `address_reg`. For example, if R2 contains 256, `READ R1, [R2]` reads data address 256 into R1. Misaligned or unmapped addresses cause a hardware fault.
 
 ### READ_BYTE
 
@@ -165,7 +165,7 @@ Within each row, instruction names correspond to opcode values in ascending orde
 
 **Syntax:** `READ_BYTE dst, [address_reg]`
 
-**Effect:** Read one 8-bit value from the numeric data-memory byte address held in `address_reg`, then zero-extend it to 32 bits in `dst`. Any valid byte address is allowed; alignment to four is not required. For example, if a word at address 256 is `0x44332211`, `READ_BYTE A, [B]` with B = 257 sets A to `0x00000022`. A byte read from a mapped peripheral is valid only if that peripheral's memory-map specification supports it; otherwise it faults. An unmapped address also faults. This instruction does not modify memory.
+**Effect:** Read one 8-bit value from the numeric data-memory byte address held in `address_reg`, then zero-extend it to 32 bits in `dst`. Any valid byte address is allowed; alignment to four is not required. For example, if a word at address 256 is `0x44332211`, `READ_BYTE R1, [R2]` with R2 = 257 sets R1 to `0x00000022`. A byte read from a mapped peripheral is valid only if that peripheral's memory-map specification supports it; otherwise it faults. An unmapped address also faults. This instruction does not modify memory.
 
 ### WRITE
 
@@ -231,7 +231,7 @@ Each `IF_*` instruction has syntax `IF_* src1, src2, N`. If its comparison is tr
 
 **Syntax:** `COUNT dst`
 
-**Effect:** Copy the **current instruction's byte address** (the PC before its normal advance) into `dst`, then continue at the next instruction. For example, `COUNT A` executing at program byte address 40 makes A = 40, not 10 or 44. The name refers to the program counter; it is not an elapsed-instruction or clock-cycle counter.
+**Effect:** Copy the **current instruction's byte address** (the PC before its normal advance) into `dst`, then continue at the next instruction. For example, `COUNT R1` executing at program byte address 40 makes R1 = 40, not 10 or 44. The name refers to the program counter; it is not an elapsed-instruction or clock-cycle counter.
 
 ### HALT
 

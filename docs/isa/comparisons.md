@@ -1,12 +1,12 @@
 # ISA comparisons
 
-**Status: design review, not implementation evidence.** This page compares the current [instruction reference](reference.md) with [Astro8](https://sam-astro.github.io/Astro8-Computer/docs/Architecture/Instruction%20Set.html) and [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html). The external names and opcode IDs describe those machines, not ours. Our candidate still has no assigned opcode IDs or working implementation.
+**Status: design review, not implementation evidence.** This page compares the current [instruction reference](reference.md) with [Astro8](https://sam-astro.github.io/Astro8-Computer/docs/Architecture/Instruction%20Set.html) and [RISC-V RV32I](https://docs.riscv.org/reference/isa/v20240411/unpriv/rv32.html). The external names and opcode IDs describe those machines, not ours. Our candidate has assigned opcode IDs but no working implementation.
 
 ## Astro8
 
 The comparison led to `COUNT` and variable-distance shifts in our candidate ISA; the remaining options below have not been adopted.
 
-The question is whether Astro8 can do something useful that our current instructions cannot, or can do only awkwardly. Similar instruction names do not guarantee identical behavior: Astro8 uses registers A/B/C for several fixed-purpose operations, whereas our instructions usually name any of eight registers.
+The question is whether Astro8 can do something useful that our current instructions cannot, or can do only awkwardly. Similar instruction names do not guarantee identical behavior: Astro8 uses registers A/B/C for several fixed-purpose operations, whereas our instructions name registers from R0–R31.
 
 | Astro8 feature | Current route in our ISA | Possible choice and tradeoff |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ RV32I is a useful comparison for general-purpose software, though compatibility 
 
 | Area | RV32I | Current candidate and tradeoff |
 | --- | --- | --- |
-| Registers | 32 integer registers, one fixed at zero | Eight writable A–H are the current candidate; 16 writable registers remain open. Fewer registers simplify encoding but may require more RAM traffic. Dedicated constant registers are set aside. |
+| Registers | 32 integer registers, one fixed at zero | Our candidate also has 32 register codes, with R0 fixed at zero and R1–R31 writable. The register count is now similar, but names and instruction behavior differ. The larger register file needs a synthesis check before a board is chosen. |
 | Addressing | One byte-addressed ISA memory space; base-plus-offset load/store operations for several data widths | Separate logical program/data spaces, with register-addressed aligned 32-bit `READ`/`WRITE` plus an 8-bit, zero-extending `READ_BYTE`. Byte writes and halfword transfers are still absent; calculating addresses may take extra instructions. |
 | Control flow | Conditional branches and jumps use relative targets; `JALR` can jump through a register | Counted `IF_*`, `GHOST`, `REPEAT`, `LEAP`, and `CALL` use different control-flow rules. Fixed 32-bit instruction size makes instruction counts predictable; assembler labels still need to resolve those counts. |
 | Arithmetic and bits | `ADD`/`SUB`, logical operations, and variable-distance shifts are in the base; multiply and divide belong to the optional M extension | The candidate includes those operations plus `MUL`, `DIV`, and `MOD` as target instructions. This increases the target implementation work, though the first board program need not execute all of them. |
