@@ -26,6 +26,10 @@ The public repository at [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRav
 
 **Status:** Design only. Added `READ_BYTE dst, [address_reg]` for zero-extended 8-bit reads from any valid data byte address and specified little-endian word layout. Byte writes remain outside v1. Updated the ISA comparison and decision log. Opcode encoding, RTL, and simulation are still pending.
 
+## 2026-10-14 — candidate binary encoding assigned
+
+**Status:** Design only. Assigned six-bit opcode values to all 30 candidate instructions, five-bit register fields, and 16-bit immediate/count fields where needed. Specified zero reserved bits, invalid register codes, and two manually encoded examples. No assembler, decoder, RTL, or simulation result exists yet. The first CPU still proposes eight physical registers; wider register fields reserve room for future choices.
+
 ## Milestone entry template
 
 Template for future milestone entries:

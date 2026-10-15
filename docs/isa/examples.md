@@ -1,6 +1,6 @@
 # Example programs (design sketches)
 
-**Status: not assembled, simulated, or run on a board.** These examples use the current [instruction reference](reference.md) to test whether the proposed ISA is practical to program. Labels and comments are assembly conveniences; binary encoding and an assembler do not exist yet. Both examples start after reset, when the current candidate's registers and PC are zero.
+**Status: not assembled, simulated, or run on a board.** These examples use the current [instruction reference](reference.md) to test whether the proposed ISA is practical to program. Labels and comments are assembly conveniences; binary encoding is specified, but an assembler does not exist yet. Both examples start after reset, when the current candidate's registers and PC are zero.
 
 ## Sum a length-prefixed list
 
