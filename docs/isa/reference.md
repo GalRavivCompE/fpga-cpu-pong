@@ -1,6 +1,6 @@
 # Instruction set reference (draft)
 
-**Status: encoded on paper, not implemented or verified.** The operations below are the current candidate v1 ISA. Six-bit opcode IDs and field positions are assigned, but no assembler, simulator test, or FPGA implementation exists. An entry here does not mean the instruction runs. See the [example programs](examples.md), [decision log](../project/decisions.md), and [ISA comparisons](comparisons.md) for context.
+**Status: candidate ISA, partly simulated.** Six-bit opcode IDs and field positions are assigned. A [first Python simulator slice](../simulation/first-slice.md) executes `DUPE`, `SET_LOW`, `ADD_CONST`, and `HALT`; other operations below remain unimplemented proposals. No assembler, RTL, or FPGA implementation exists. See the [example programs](examples.md), [decision log](../project/decisions.md), and [ISA comparisons](comparisons.md) for context.
 
 ## Machine and notation
 

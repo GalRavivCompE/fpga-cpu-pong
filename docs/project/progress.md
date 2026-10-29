@@ -34,6 +34,10 @@ The public repository at [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRav
 
 **Status:** Design only. Revised the candidate to use all 32 register codes: R0 always reads as zero and discards writes; R1–R31 are writable. Updated instruction examples and ISA comparisons. The register-file circuit and its FPGA cost remain unmeasured; no CPU behavior has been verified in simulation or on a board.
 
+## 2026-10-29 — first executable CPU slice
+
+**Status:** Python simulation only. Implemented `DUPE`, `SET_LOW`, `ADD_CONST`, and `HALT` in a small fetch/decode/execute simulator. A four-word program produces R0=0, R1=7, and R2=12 and halts at byte PC=12. Three unit tests check the trace result, R0 behavior and upper-half preservation, and signed immediate wraparound. Reproduce with the commands in the [first simulator slice](../simulation/first-slice.md). This does not verify RTL or FPGA behavior; RAM, loops, and the rest of the ISA remain to be implemented.
+
 ## Milestone entry template
 
 Template for future milestone entries:
