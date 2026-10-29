@@ -1,6 +1,6 @@
 # Instruction set reference (draft)
 
-**Status: candidate ISA, partly simulated.** Six-bit opcode IDs and field positions are assigned. A [first Python simulator slice](../simulation/first-slice.md) executes `DUPE`, `SET_LOW`, `ADD_CONST`, and `HALT`; other operations below remain unimplemented proposals. No assembler, RTL, or FPGA implementation exists. See the [example programs](examples.md), [decision log](../project/decisions.md), and [ISA comparisons](comparisons.md) for context.
+**Status: candidate ISA, partly simulated.** Six-bit opcode IDs and field positions are assigned. A [Python simulator and small assembler](../simulation/list-sum.md) execute 12 of the 30 instructions, including the list-summing loop; the others remain unimplemented proposals. No RTL or FPGA implementation exists. See the [example programs](examples.md), [decision log](../project/decisions.md), and [ISA comparisons](comparisons.md) for context.
 
 ## Machine and notation
 

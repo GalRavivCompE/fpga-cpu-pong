@@ -26,4 +26,4 @@ The tests also check that writes cannot change R0, `SET_LOW` preserves the upper
 2. In [`cpu.py`](../../simulator/cpu.py), follow `step()`: fetch the word at `PC / 4`, decode fields, execute one operation, then advance the PC by four unless `HALT` stops it.
 3. In [`test_cpu.py`](../../simulator/test_cpu.py), compare each expected result with the ISA reference.
 
-The next useful slice is `READ`/`WRITE` with a small data RAM, followed by counted control flow. Memory layout and a board memory map remain design decisions.
+The [next simulator slice](list-sum.md) adds data RAM, counted control flow, and a small assembler to run a list-summing program. The board memory map remains a separate design decision.

@@ -1,6 +1,6 @@
 # Example programs (design sketches)
 
-**Status: not assembled, simulated, or run on a board.** These examples use the current [instruction reference](reference.md) to test whether the proposed ISA is practical to program. Labels and comments are assembly conveniences; binary encoding is specified, but an assembler does not exist yet. Both examples start after reset, when the current candidate's registers and PC are zero.
+**Status: list-summing example assembled and run in Python; other examples remain sketches.** These programs use the current [instruction reference](reference.md) to test whether the proposed ISA is practical to program. The small assembler supports the list example and a subset of instructions; no example has run in RTL or on a board. Programs start after reset, when registers and PC are zero.
 
 ## Sum a length-prefixed list
 
@@ -23,7 +23,7 @@ done:
 HALT
 ```
 
-`IF_EQ` controls one following machine instruction, which is the `GHOST`. The loop checks the count before reading an element, so a zero-length list halts with sum zero. This example has not been executed; a simulator should test zero, one, and several elements, plus arithmetic wraparound.
+`IF_EQ` controls one following machine instruction, which is the `GHOST`. The loop checks the count before reading an element, so a zero-length list halts with sum zero. A copy of this example [runs in Python simulation](../simulation/list-sum.md), with tests for zero, one, and several elements plus arithmetic wraparound.
 
 ## Mirror one button bit to an output
 

@@ -38,6 +38,10 @@ The public repository at [GalRavivCompE/fpga-cpu-pong](https://github.com/GalRav
 
 **Status:** Python simulation only. Implemented `DUPE`, `SET_LOW`, `ADD_CONST`, and `HALT` in a small fetch/decode/execute simulator. A four-word program produces R0=0, R1=7, and R2=12 and halts at byte PC=12. Three unit tests check the trace result, R0 behavior and upper-half preservation, and signed immediate wraparound. Reproduce with the commands in the [first simulator slice](../simulation/first-slice.md). This does not verify RTL or FPGA behavior; RAM, loops, and the rest of the ISA remain to be implemented.
 
+## 2026-10-29 — list program assembled and simulated
+
+**Status:** Python simulation only. Added a 1,024-byte byte-addressed data RAM, the `READ`, `READ_BYTE`, `WRITE`, `IF_EQ`, `GHOST`, `REPEAT`, `ADD`, and `SET_HIGH` operations, and a small two-pass assembler. The length-prefixed list program sums `[7, 12, 5]` to 24 and halts; tests also cover empty and one-item lists, 32-bit wraparound, little-endian byte reads, and bad alignment. Reproduce with the commands in [running an ISA program in Python](../simulation/list-sum.md). The simulator now covers 12 of 30 candidate instructions. No RTL or FPGA result exists.
+
 ## Milestone entry template
 
 Template for future milestone entries:
